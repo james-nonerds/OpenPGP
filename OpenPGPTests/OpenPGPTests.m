@@ -46,4 +46,12 @@
     }
 }
 
+- (void)testPacketList {
+    
+    ASCIIArmor *armor = [ASCIIArmor armorFromText:self.message];
+    
+    PacketList *packetList = [PacketList packetListFromData:armor.content];
+    XCTAssertNotNil(packetList, @"Failed to create packet list.");
+}
+
 @end

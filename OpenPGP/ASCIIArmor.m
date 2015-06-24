@@ -230,7 +230,7 @@ static NSString *const ASCIIArmorHeaderSignature =    @"-----BEGIN PGP SIGNATURE
 + (NSUInteger)valueForChecksumString:(NSString *)checksumString {
     NSData *checksumData = [[NSData alloc] initWithBase64EncodedString:[checksumString substringFromIndex:1] options:0];
 
-    const uint8_t *octets = (const uint8_t *) checksumData.bytes;
+    const Byte *octets = (const Byte *) checksumData.bytes;
     
     return  (octets[0] << 020) +
             (octets[1] << 010) +
@@ -263,7 +263,7 @@ static NSString *const ASCIIArmorHeaderSignature =    @"-----BEGIN PGP SIGNATURE
 }
 
 + (NSString *)checksumStringForChecksum:(NSUInteger)checksum {
-    uint8_t octets[3];
+    Byte octets[3];
     
     octets[0] = (checksum >> 020) & 0xFF;
     octets[1] = (checksum >> 010) & 0xFF;

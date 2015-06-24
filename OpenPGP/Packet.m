@@ -10,4 +10,19 @@
 
 @implementation Packet
 
++ (Packet *)packetWithType:(PacketType)type body:(NSData *)body {
+    return [[self alloc] initWithType:type body:body];
+}
+
+- (id)initWithType:(PacketType)type body:(NSData *)body {
+    self = [super init];
+    
+    if (self != nil) {
+        _type = type;
+        _body = body;
+    }
+    
+    return self;
+}
+
 @end

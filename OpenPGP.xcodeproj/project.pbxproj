@@ -12,13 +12,15 @@
 		A770F8911B39E77400D8E826 /* OpenPGPTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A770F8901B39E77400D8E826 /* OpenPGPTests.m */; };
 		A770F89C1B39E79500D8E826 /* PacketList.h in Headers */ = {isa = PBXBuildFile; fileRef = A770F89A1B39E79500D8E826 /* PacketList.h */; };
 		A770F89D1B39E79500D8E826 /* PacketList.m in Sources */ = {isa = PBXBuildFile; fileRef = A770F89B1B39E79500D8E826 /* PacketList.m */; };
-		A770F8A41B39EFE000D8E826 /* Packet.h in Headers */ = {isa = PBXBuildFile; fileRef = A770F8A21B39EFE000D8E826 /* Packet.h */; };
-		A770F8A51B39EFE000D8E826 /* Packet.m in Sources */ = {isa = PBXBuildFile; fileRef = A770F8A31B39EFE000D8E826 /* Packet.m */; };
 		A770F8B11B39F43100D8E826 /* ASCIIArmor.h in Headers */ = {isa = PBXBuildFile; fileRef = A770F8AF1B39F43100D8E826 /* ASCIIArmor.h */; };
 		A770F8B21B39F43100D8E826 /* ASCIIArmor.m in Sources */ = {isa = PBXBuildFile; fileRef = A770F8B01B39F43100D8E826 /* ASCIIArmor.m */; };
 		A770F8BD1B39F83500D8E826 /* message.txt in Resources */ = {isa = PBXBuildFile; fileRef = A770F8BA1B39F83500D8E826 /* message.txt */; };
 		A770F8BE1B39F83500D8E826 /* private-key.gpg.txt in Resources */ = {isa = PBXBuildFile; fileRef = A770F8BB1B39F83500D8E826 /* private-key.gpg.txt */; };
 		A770F8BF1B39F83500D8E826 /* public-key.gpg.txt in Resources */ = {isa = PBXBuildFile; fileRef = A770F8BC1B39F83500D8E826 /* public-key.gpg.txt */; };
+		A770F8C21B3A3E5A00D8E826 /* Packet.h in Headers */ = {isa = PBXBuildFile; fileRef = A770F8C01B3A3E5A00D8E826 /* Packet.h */; };
+		A770F8C31B3A3E5A00D8E826 /* Packet.m in Sources */ = {isa = PBXBuildFile; fileRef = A770F8C11B3A3E5A00D8E826 /* Packet.m */; };
+		A770F8C61B3A444C00D8E826 /* PacketReader.h in Headers */ = {isa = PBXBuildFile; fileRef = A770F8C41B3A444C00D8E826 /* PacketReader.h */; };
+		A770F8C71B3A444C00D8E826 /* PacketReader.m in Sources */ = {isa = PBXBuildFile; fileRef = A770F8C51B3A444C00D8E826 /* PacketReader.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,13 +42,15 @@
 		A770F8901B39E77400D8E826 /* OpenPGPTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OpenPGPTests.m; sourceTree = "<group>"; };
 		A770F89A1B39E79500D8E826 /* PacketList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacketList.h; sourceTree = "<group>"; };
 		A770F89B1B39E79500D8E826 /* PacketList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacketList.m; sourceTree = "<group>"; };
-		A770F8A21B39EFE000D8E826 /* Packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Packet.h; sourceTree = SOURCE_ROOT; };
-		A770F8A31B39EFE000D8E826 /* Packet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Packet.m; sourceTree = SOURCE_ROOT; };
 		A770F8AF1B39F43100D8E826 /* ASCIIArmor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCIIArmor.h; sourceTree = "<group>"; };
 		A770F8B01B39F43100D8E826 /* ASCIIArmor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASCIIArmor.m; sourceTree = "<group>"; };
 		A770F8BA1B39F83500D8E826 /* message.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = message.txt; sourceTree = "<group>"; };
 		A770F8BB1B39F83500D8E826 /* private-key.gpg.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "private-key.gpg.txt"; sourceTree = "<group>"; };
 		A770F8BC1B39F83500D8E826 /* public-key.gpg.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "public-key.gpg.txt"; sourceTree = "<group>"; };
+		A770F8C01B3A3E5A00D8E826 /* Packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Packet.h; sourceTree = "<group>"; };
+		A770F8C11B3A3E5A00D8E826 /* Packet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Packet.m; sourceTree = "<group>"; };
+		A770F8C41B3A444C00D8E826 /* PacketReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacketReader.h; sourceTree = "<group>"; };
+		A770F8C51B3A444C00D8E826 /* PacketReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacketReader.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,11 +94,14 @@
 			isa = PBXGroup;
 			children = (
 				A770F8831B39E77400D8E826 /* OpenPGP.h */,
-				A770F8A21B39EFE000D8E826 /* Packet.h */,
-				A770F8A31B39EFE000D8E826 /* Packet.m */,
+				A770F8AF1B39F43100D8E826 /* ASCIIArmor.h */,
+				A770F8B01B39F43100D8E826 /* ASCIIArmor.m */,
+				A770F8C01B3A3E5A00D8E826 /* Packet.h */,
+				A770F8C11B3A3E5A00D8E826 /* Packet.m */,
 				A770F89A1B39E79500D8E826 /* PacketList.h */,
 				A770F89B1B39E79500D8E826 /* PacketList.m */,
-				A770F8AE1B39F40200D8E826 /* Ascii Armor */,
+				A770F8C41B3A444C00D8E826 /* PacketReader.h */,
+				A770F8C51B3A444C00D8E826 /* PacketReader.m */,
 				A770F8811B39E77400D8E826 /* Supporting Files */,
 			);
 			path = OpenPGP;
@@ -126,15 +133,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		A770F8AE1B39F40200D8E826 /* Ascii Armor */ = {
-			isa = PBXGroup;
-			children = (
-				A770F8AF1B39F43100D8E826 /* ASCIIArmor.h */,
-				A770F8B01B39F43100D8E826 /* ASCIIArmor.m */,
-			);
-			name = "Ascii Armor";
-			sourceTree = "<group>";
-		};
 		A770F8B91B39F82E00D8E826 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -154,8 +152,9 @@
 			files = (
 				A770F89C1B39E79500D8E826 /* PacketList.h in Headers */,
 				A770F8B11B39F43100D8E826 /* ASCIIArmor.h in Headers */,
-				A770F8A41B39EFE000D8E826 /* Packet.h in Headers */,
+				A770F8C21B3A3E5A00D8E826 /* Packet.h in Headers */,
 				A770F8841B39E77400D8E826 /* OpenPGP.h in Headers */,
+				A770F8C61B3A444C00D8E826 /* PacketReader.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -258,9 +257,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A770F8C71B3A444C00D8E826 /* PacketReader.m in Sources */,
 				A770F89D1B39E79500D8E826 /* PacketList.m in Sources */,
-				A770F8A51B39EFE000D8E826 /* Packet.m in Sources */,
 				A770F8B21B39F43100D8E826 /* ASCIIArmor.m in Sources */,
+				A770F8C31B3A3E5A00D8E826 /* Packet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
