@@ -21,22 +21,31 @@
 @implementation PacketList
 
 + (instancetype)packetListFromData:(NSData *)data {
-    PacketReader *reader = [PacketReader readerWithData:data];
+    PacketList *packetList = nil;
     
-    NSMutableArray *packets = [NSMutableArray array];
-    
-    while (!reader.isComplete) {
-        NSError *error = nil;
-        Packet *packet = [reader readPacketWithError:&error];
+    @try {
+        PacketReader *reader = [PacketReader readerWithData:data];
         
-        if (error != nil) {
-            NSLog(@"Error reading packet: %@", error);
+        NSMutableArray *packets = [NSMutableArray array];
+        
+        while (!reader.isComplete) {
+            NSError *error = nil;
+            Packet *packet = [reader readPacketWithError:&error];
+            
+            if (error != nil) {
+                NSLog(@"Error reading packet: %@", error);
+            }
+            
+            [packets addObject:packet];
         }
         
-        [packets addObject:packet];
+        packetList = [self packetListWithPackets:[NSArray arrayWithArray:packets]];
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Failed to read packet list: %@", packetList);
     }
     
-    return [self packetListWithPackets:[NSArray arrayWithArray:packets]];
+    return packetList;
 }
 
 + (instancetype)packetListWithPackets:(NSArray *)packets {
