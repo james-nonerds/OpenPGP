@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Signature.h"
 
 @class MPI;
 
@@ -56,18 +57,52 @@ typedef NS_ENUM(NSUInteger, PublicKeyAlgorithm) {
     PublicKeyAlgorithmDSA = 17
 };
 
+typedef NS_ENUM(NSUInteger, HashAlgorithm) {
+    HashAlgorithmSHA256
+};
+
+#pragma mark - Packet interface
+
 @interface Packet : NSObject
 
 + (Packet *)packetWithType:(PacketType)type body:(NSData *)body;
 
 @end
 
+#pragma mark - PKESKeyPacket interface
+
 @interface PKESKeyPacket : Packet
 
-@property (nonatomic, readonly) NSUInteger versionNumber;
 @property (nonatomic, readonly) NSString *keyId;
 @property (nonatomic, readonly) MPI *encryptedM;
 
 @end
 
+#pragma mark - SEIPDataPacket interface
+
+@interface SEIPDataPacket : Packet
+
+@property (nonatomic, readonly) NSData *encryptedData;
+
+@end
+
+#pragma mark - SignaturePacket interface
+
+@interface SignaturePacket : Packet
+
+@property (nonatomic, readonly) NSUInteger versionNumber;
+
+@property (nonatomic, readonly) SignatureType signatureType;
+@property (nonatomic, readonly) NSUInteger creationTime;
+@property (nonatomic, readonly) NSString *keyId;
+
+@property (nonatomic, readonly) NSData *hashedSubpackets;
+@property (nonatomic, readonly) NSData *unhashedSubpackets;
+
+@property (nonatomic, readonly) NSUInteger hashValue;
+@property (nonatomic, readonly) MPI *encryptedM;
+
+
+
+@end
 

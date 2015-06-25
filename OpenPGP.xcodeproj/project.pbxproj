@@ -13,6 +13,8 @@
 		A71958461B3B51FB007116E1 /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A71958451B3B51FB007116E1 /* libbz2.dylib */; };
 		A71958491B3B5482007116E1 /* MPI.h in Headers */ = {isa = PBXBuildFile; fileRef = A71958471B3B5482007116E1 /* MPI.h */; };
 		A719584A1B3B5482007116E1 /* MPI.m in Sources */ = {isa = PBXBuildFile; fileRef = A71958481B3B5482007116E1 /* MPI.m */; };
+		A76D015D1B3B907200103F89 /* Signature.h in Headers */ = {isa = PBXBuildFile; fileRef = A76D015B1B3B907200103F89 /* Signature.h */; };
+		A76D015E1B3B907200103F89 /* Signature.m in Sources */ = {isa = PBXBuildFile; fileRef = A76D015C1B3B907200103F89 /* Signature.m */; };
 		A770F8841B39E77400D8E826 /* OpenPGP.h in Headers */ = {isa = PBXBuildFile; fileRef = A770F8831B39E77400D8E826 /* OpenPGP.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A770F88A1B39E77400D8E826 /* OpenPGP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A770F87E1B39E77400D8E826 /* OpenPGP.framework */; };
 		A770F8911B39E77400D8E826 /* OpenPGPTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A770F8901B39E77400D8E826 /* OpenPGPTests.m */; };
@@ -46,6 +48,8 @@
 		A71958451B3B51FB007116E1 /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = usr/lib/libbz2.dylib; sourceTree = SDKROOT; };
 		A71958471B3B5482007116E1 /* MPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPI.h; sourceTree = "<group>"; };
 		A71958481B3B5482007116E1 /* MPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPI.m; sourceTree = "<group>"; };
+		A76D015B1B3B907200103F89 /* Signature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Signature.h; sourceTree = "<group>"; };
+		A76D015C1B3B907200103F89 /* Signature.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Signature.m; sourceTree = "<group>"; };
 		A770F87E1B39E77400D8E826 /* OpenPGP.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenPGP.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A770F8821B39E77400D8E826 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A770F8831B39E77400D8E826 /* OpenPGP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenPGP.h; sourceTree = "<group>"; };
@@ -99,6 +103,53 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		A76D01551B3B8FAA00103F89 /* Packet */ = {
+			isa = PBXGroup;
+			children = (
+				A770F8C01B3A3E5A00D8E826 /* Packet.h */,
+				A770F8C11B3A3E5A00D8E826 /* Packet.m */,
+				A770F89A1B39E79500D8E826 /* PacketList.h */,
+				A770F89B1B39E79500D8E826 /* PacketList.m */,
+				A770F8C41B3A444C00D8E826 /* PacketReader.h */,
+				A770F8C51B3A444C00D8E826 /* PacketReader.m */,
+			);
+			name = Packet;
+			sourceTree = "<group>";
+		};
+		A76D01561B3B8FB100103F89 /* Crypto */ = {
+			isa = PBXGroup;
+			children = (
+				A71958471B3B5482007116E1 /* MPI.h */,
+				A71958481B3B5482007116E1 /* MPI.m */,
+			);
+			name = Crypto;
+			sourceTree = "<group>";
+		};
+		A76D01571B3B8FBF00103F89 /* PGP */ = {
+			isa = PBXGroup;
+			children = (
+				A770F8AF1B39F43100D8E826 /* ASCIIArmor.h */,
+				A770F8B01B39F43100D8E826 /* ASCIIArmor.m */,
+			);
+			name = PGP;
+			sourceTree = "<group>";
+		};
+		A76D01591B3B8FDB00103F89 /* Key */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Key;
+			sourceTree = "<group>";
+		};
+		A76D015A1B3B905C00103F89 /* Signature */ = {
+			isa = PBXGroup;
+			children = (
+				A76D015B1B3B907200103F89 /* Signature.h */,
+				A76D015C1B3B907200103F89 /* Signature.m */,
+			);
+			name = Signature;
+			sourceTree = "<group>";
+		};
 		A770F8741B39E77400D8E826 = {
 			isa = PBXGroup;
 			children = (
@@ -121,17 +172,12 @@
 		A770F8801B39E77400D8E826 /* OpenPGP */ = {
 			isa = PBXGroup;
 			children = (
+				A76D01591B3B8FDB00103F89 /* Key */,
 				A770F8831B39E77400D8E826 /* OpenPGP.h */,
-				A770F8AF1B39F43100D8E826 /* ASCIIArmor.h */,
-				A770F8B01B39F43100D8E826 /* ASCIIArmor.m */,
-				A770F8C01B3A3E5A00D8E826 /* Packet.h */,
-				A770F8C11B3A3E5A00D8E826 /* Packet.m */,
-				A770F89A1B39E79500D8E826 /* PacketList.h */,
-				A770F89B1B39E79500D8E826 /* PacketList.m */,
-				A770F8C41B3A444C00D8E826 /* PacketReader.h */,
-				A770F8C51B3A444C00D8E826 /* PacketReader.m */,
-				A71958471B3B5482007116E1 /* MPI.h */,
-				A71958481B3B5482007116E1 /* MPI.m */,
+				A76D01571B3B8FBF00103F89 /* PGP */,
+				A76D01561B3B8FB100103F89 /* Crypto */,
+				A76D01551B3B8FAA00103F89 /* Packet */,
+				A76D015A1B3B905C00103F89 /* Signature */,
 				A770F8811B39E77400D8E826 /* Supporting Files */,
 			);
 			path = OpenPGP;
@@ -180,6 +226,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A76D015D1B3B907200103F89 /* Signature.h in Headers */,
 				A770F89C1B39E79500D8E826 /* PacketList.h in Headers */,
 				A770F8B11B39F43100D8E826 /* ASCIIArmor.h in Headers */,
 				A770F8C21B3A3E5A00D8E826 /* Packet.h in Headers */,
@@ -288,6 +335,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A76D015E1B3B907200103F89 /* Signature.m in Sources */,
 				A719584A1B3B5482007116E1 /* MPI.m in Sources */,
 				A770F8C71B3A444C00D8E826 /* PacketReader.m in Sources */,
 				A770F89D1B39E79500D8E826 /* PacketList.m in Sources */,
