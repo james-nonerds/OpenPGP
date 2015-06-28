@@ -26,6 +26,7 @@ typedef NS_ENUM(NSUInteger, ASCIIArmorReadState) {
 };
 
 static NSString *const PGPLineBreak = @"\r\n";
+static NSString *const PGPBackupBreak = @"\n";
 
 static NSString *const ASCIIArmorHeaderMessage =      @"-----BEGIN PGP MESSAGE-----";
 static NSString *const ASCIIArmorHeaderPublicKey =    @"-----BEGIN PGP PUBLIC KEY BLOCK-----";
@@ -76,6 +77,13 @@ static NSString *const ASCIIArmorHeaderSignature =    @"-----BEGIN PGP SIGNATURE
 
 + (ASCIIArmor *)armorFromText:(NSString *)text {
     NSArray *lines = [text componentsSeparatedByString:PGPLineBreak];
+    
+    BOOL backupUsed = NO;
+    
+    if (lines.count == 1) {
+        lines = [text componentsSeparatedByString:PGPBackupBreak];
+        backupUsed = YES;
+    }
     
     ASCIIArmorReadState state = ASCIIArmorReadStateArmorHeader;
     
@@ -201,7 +209,7 @@ static NSString *const ASCIIArmorHeaderSignature =    @"-----BEGIN PGP SIGNATURE
 }
 
 + (NSData *)readContentString:(NSString *)contentString checksum:(NSString *)checksumString {
-    NSData *contentData = [[NSData alloc] initWithBase64EncodedString:contentString options:0];
+    NSData *contentData = [[NSData alloc] initWithBase64EncodedString:contentString options:NSDataBase64DecodingIgnoreUnknownCharacters];
     
     NSUInteger contentChecksum = [ASCIIArmor checksumForBase64Data:contentData];
     NSUInteger checksum = [ASCIIArmor valueForChecksumString:checksumString];

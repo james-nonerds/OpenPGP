@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+
+#import "Crypto.h"
 #import "Signature.h"
 
 @class MPI;
@@ -37,72 +39,17 @@ typedef NS_ENUM(NSUInteger, PacketType) {
     PacketTypeUnknown = 255
 };
 
-typedef NS_ENUM(NSUInteger, SymmetricAlgorithm) {
-    SymmetricAlgorithmPlaintext = 0,
-    SymmetricAlgorithmIdea = 1,
-    SymmetricAlgorithmTripleDES = 2,
-    SymmetricAlgorithmCast5 = 3,
-    SymmetricAlgorithmBlowfish = 4,
-    SymmetricAlgorithmAES128 = 7,
-    SymmetricAlgorithmAES192 = 8,
-    SymmetricAlgorithmAES256 = 9,
-    SymmetricAlgorithmTwoFish = 10
-};
-
-typedef NS_ENUM(NSUInteger, PublicKeyAlgorithm) {
-    PublicKeyAlgorithmRSAEncryptSign = 1,
-    PublicKeyAlgorithmRSAEncrypt = 2,
-    PublicKeyAlgorithmRSASign = 3,
-    PublicKeyAlgorithmElGamal = 16,
-    PublicKeyAlgorithmDSA = 17
-};
-
-typedef NS_ENUM(NSUInteger, HashAlgorithm) {
-    HashAlgorithmSHA256
-};
-
 #pragma mark - Packet interface
 
 @interface Packet : NSObject
 
+@property (nonatomic, readonly) PacketType packetType;
+
 + (Packet *)packetWithType:(PacketType)type body:(NSData *)body;
 
-@end
-
-#pragma mark - PKESKeyPacket interface
-
-@interface PKESKeyPacket : Packet
-
-@property (nonatomic, readonly) NSString *keyId;
-@property (nonatomic, readonly) MPI *encryptedM;
+/// Abstract method: must be overriden:
++ (Packet *)packetWithBody:(NSData *)body;
 
 @end
 
-#pragma mark - SEIPDataPacket interface
-
-@interface SEIPDataPacket : Packet
-
-@property (nonatomic, readonly) NSData *encryptedData;
-
-@end
-
-#pragma mark - SignaturePacket interface
-
-@interface SignaturePacket : Packet
-
-@property (nonatomic, readonly) NSUInteger versionNumber;
-
-@property (nonatomic, readonly) SignatureType signatureType;
-@property (nonatomic, readonly) NSUInteger creationTime;
-@property (nonatomic, readonly) NSString *keyId;
-
-@property (nonatomic, readonly) NSData *hashedSubpackets;
-@property (nonatomic, readonly) NSData *unhashedSubpackets;
-
-@property (nonatomic, readonly) NSUInteger hashValue;
-@property (nonatomic, readonly) MPI *encryptedM;
-
-
-
-@end
 

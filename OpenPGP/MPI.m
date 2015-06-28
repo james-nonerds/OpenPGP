@@ -18,9 +18,7 @@
 
 @implementation MPI
 
-+ (MPI *)mpiFromBytes:(const Byte *)bytes {
-    unsigned bitCount = (bytes[0] << 8) | bytes[1];
-    unsigned length = (bitCount + 7) / 8;  // Taken from NetPGP, poor man's CEIL.
++ (MPI *)mpiFromBytes:(const Byte *)bytes byteCount:(NSUInteger)length {
     
     Byte mpiBytes[length];
     memcpy(mpiBytes, bytes + 2, length);
@@ -29,6 +27,20 @@
     
     return [[self alloc] initWithBIGNUM:bn length:length];
 }
+
++ (MPI *)mpiFromBytes:(const Byte *)bytes {
+    NSUInteger bitCount = (bytes[0] << 8) | bytes[1];
+    NSUInteger length = (bitCount + 7) / 8;  // Taken from NetPGP, poor man's CEIL.
+    
+    Byte mpiBytes[length];
+    memcpy(mpiBytes, bytes + 2, length);
+    
+    BIGNUM *bn = BN_bin2bn(mpiBytes, (int) length, NULL);
+    
+    return [[self alloc] initWithBIGNUM:bn length:length + 2];
+}
+
+
 
 - (id)initWithBIGNUM:(BIGNUM *)bn length:(NSUInteger)length {
     self = [super init];

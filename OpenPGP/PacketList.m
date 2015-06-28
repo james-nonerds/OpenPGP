@@ -34,9 +34,12 @@
             
             if (error != nil) {
                 NSLog(@"Error reading packet: %@", error);
+                continue;
             }
             
-            [packets addObject:packet];
+            if (packet != nil) {
+                [packets addObject:packet];
+            }
         }
         
         packetList = [self packetListWithPackets:[NSArray arrayWithArray:packets]];

@@ -31,7 +31,6 @@ typedef NS_ENUM(NSUInteger, ASCIIArmorHeaderType) {
 @property (nonatomic, readonly) NSData *content;
 
 /// Output properties:
-@property (nonatomic, readonly) PacketList *packetList;
 @property (nonatomic, readonly) NSString *text;
 
 #pragma mark Constructors

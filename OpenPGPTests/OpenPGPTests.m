@@ -9,10 +9,14 @@
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 #import "ASCIIArmor.h"
+#import "OpenPGP.h"
 
 @interface OpenPGPTests : XCTestCase
 
 @property (nonatomic, strong) NSString *message;
+@property (nonatomic, strong) NSString *publicKey;
+@property (nonatomic, strong) NSString *privateKey;
+@property (nonatomic, strong) NSArray *publicKeys;
 
 @end
 
@@ -22,7 +26,14 @@
     [super setUp];
     
     NSString *messagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"message" ofType:@"txt"];
+    NSString *publicPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"public-key" ofType:@"gpg"];
+    NSString *privatePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"private-key" ofType:@"gpg"];
+    NSString *publicKeyJsonPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"all-public-keys" ofType:@"json"];
+    
     self.message = [NSString stringWithContentsOfFile:messagePath encoding:NSUTF8StringEncoding error:nil];
+    self.publicKey = [NSString stringWithContentsOfFile:publicPath encoding:NSUTF8StringEncoding error:nil];
+    self.privateKey = [NSString stringWithContentsOfFile:privatePath encoding:NSUTF8StringEncoding error:nil];
+    self.publicKeys = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:publicKeyJsonPath] options:NSJSONReadingAllowFragments error:nil];
 }
 
 - (void)tearDown {
@@ -46,12 +57,36 @@
     }
 }
 
-- (void)testPacketList {
+//- (void)testReadMessage {
+//    ASCIIArmor *armor = [ASCIIArmor armorFromText:self.message];
+//    
+//    PacketList *packetList = [PacketList packetListFromData:armor.content];
+//    XCTAssertNotNil(packetList, @"Failed to create packet list.");
+//}
+
+//- (void)testReadPublicKey {
+//    ASCIIArmor *armor = [ASCIIArmor armorFromText:self.publicKey];
+//    
+//    PacketList *packetList = [PacketList packetListFromData:armor.content];
+//    XCTAssertNotNil(packetList, @"Failed to create packet list.");
+//}
+
+//- (void)testReadSecretKey {
+//    ASCIIArmor *armor = [ASCIIArmor armorFromText:self.privateKey];
+//    
+//    PacketList *packetList = [PacketList packetListFromData:armor.content];
+//    XCTAssertNotNil(packetList, @"Failed to create packet list.");
+//}
+
+- (void)testHumanPractice {
     
-    ASCIIArmor *armor = [ASCIIArmor armorFromText:self.message];
     
-    PacketList *packetList = [PacketList packetListFromData:armor.content];
-    XCTAssertNotNil(packetList, @"Failed to create packet list.");
+    [OpenPGP decryptAndVerifyMessage:self.message privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *decryptedMessage, NSArray *verifiedUserIds) {
+        NSLog(@"Success.");
+    } errorBlock:^(NSError *error) {
+        XCTFail(@"Decrypt and verify failed: %@", error);
+    }];
 }
+
 
 @end
