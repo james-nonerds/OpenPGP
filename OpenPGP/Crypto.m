@@ -52,6 +52,8 @@
     NSUInteger length = BN_num_bytes(message.bn);
     Byte mpibuf[length];
     
+    memset(mpibuf, 0, length);
+    
     BN_bn2bin(message.bn, mpibuf);
     
     return [self decryptBytes:mpibuf length:length withSecretKey:key];
@@ -73,16 +75,24 @@
 }
 
 + (NSData *)decryptData:(NSData *)data withSymmetricKey:(const Byte *)symmetricKey {
-    AES_KEY aesKey;
+    NSUInteger length = data.length + kCCBlockSizeAES128;
     
-    AES_set_decrypt_key(symmetricKey, 256, &aesKey);
+    Byte outbuf[length];
+    Byte iv[16];
+    size_t num = 0;
     
-    NSUInteger length = data.length;
-    NSUInteger padding = 16 - (length % 16);
+    memset(outbuf, 0, length);
+    memset(iv, 0, 16);
     
-    Byte outbuf[length + padding];
+    CCCryptorStatus     err;
+    CCCryptorRef        cryptor;
     
-    AES_decrypt(data.bytes, outbuf, &aesKey);
+    cryptor = NULL;
+    
+    err = CCCryptorCreateWithMode(kCCDecrypt, kCCModeCFB, kCCAlgorithmAES, ccNoPadding, iv, symmetricKey, kCCKeySizeAES256, NULL, 0, 0, 0, &cryptor);
+    
+    err = CCCryptorUpdate(cryptor, data.bytes, data.length, outbuf, length, &num);
+    err = CCCryptorFinal(cryptor, outbuf, length, NULL);
     
     NSLog(@"%s", outbuf);
     

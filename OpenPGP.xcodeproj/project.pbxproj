@@ -53,6 +53,7 @@
 		A7A691D81B3E07DB00B55BA9 /* KeyPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = A7A691D61B3E07DB00B55BA9 /* KeyPacket.m */; };
 		A7A691DB1B3E0A5200B55BA9 /* UserIDPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = A7A691D91B3E0A5200B55BA9 /* UserIDPacket.h */; };
 		A7A691DC1B3E0A5200B55BA9 /* UserIDPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = A7A691DA1B3E0A5200B55BA9 /* UserIDPacket.m */; };
+		A7FEE29F1B403EF90043D289 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7FEE29E1B403EF90043D289 /* Security.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -115,6 +116,7 @@
 		A7A691D61B3E07DB00B55BA9 /* KeyPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyPacket.m; sourceTree = "<group>"; };
 		A7A691D91B3E0A5200B55BA9 /* UserIDPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserIDPacket.h; sourceTree = "<group>"; };
 		A7A691DA1B3E0A5200B55BA9 /* UserIDPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserIDPacket.m; sourceTree = "<group>"; };
+		A7FEE29E1B403EF90043D289 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +124,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A7FEE29F1B403EF90043D289 /* Security.framework in Frameworks */,
 				A71958461B3B51FB007116E1 /* libbz2.dylib in Frameworks */,
 				A71958441B3B51F7007116E1 /* libz.dylib in Frameworks */,
 				A71958401B3B51DF007116E1 /* libcrypto.a in Frameworks */,
@@ -150,6 +153,7 @@
 		A71958421B3B51E7007116E1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A7FEE29E1B403EF90043D289 /* Security.framework */,
 				A71958451B3B51FB007116E1 /* libbz2.dylib */,
 				A71958431B3B51F7007116E1 /* libz.dylib */,
 				A719583E1B3B51DF007116E1 /* libcrypto.a */,

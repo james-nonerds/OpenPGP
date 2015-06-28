@@ -239,8 +239,8 @@
     
     SymmetricAlgorithm symmetricAlgorithm = bytes[currentIndex++];
     
-    NSUInteger checksum = [Utility readNumber:bytes + currentIndex length:2];
-    currentIndex += 2;
+//    NSUInteger checksum = [Utility readNumber:bytes + currentIndex length:2];
+//    currentIndex += 2;
     
     // TODO: CHECK CHECKSUM.
     

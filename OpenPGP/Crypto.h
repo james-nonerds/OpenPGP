@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CommonCrypto/CommonCrypto.h>
 #import "Key.h"
 
 typedef NS_ENUM(NSUInteger, CompressionAlgorithm) {
