@@ -77,12 +77,8 @@ static NSString *const ASCIIArmorHeaderSignature =    @"-----BEGIN PGP SIGNATURE
 
 + (ASCIIArmor *)armorFromText:(NSString *)text {
     NSArray *lines = [text componentsSeparatedByString:PGPLineBreak];
-    
-    BOOL backupUsed = NO;
-    
     if (lines.count == 1) {
         lines = [text componentsSeparatedByString:PGPBackupBreak];
-        backupUsed = YES;
     }
     
     ASCIIArmorReadState state = ASCIIArmorReadStateArmorHeader;

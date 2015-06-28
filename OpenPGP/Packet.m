@@ -9,6 +9,8 @@
 #import "Packet.h"
 #import "PKESPacket.h"
 #import "KeyPacket.h"
+#import "LiteralDataPacket.h"
+#import "OnePassSignaturePacket.h"
 #import "SEIPDataPacket.h"
 #import "SignaturePacket.h"
 #import "UserIDPacket.h"
@@ -49,10 +51,11 @@
             break;
             
         case PacketTypeOnePassSig:
-            
+            packet = [OnePassSignaturePacket packetWithBody:body];
             break;
             
         case PacketTypeLiteralData:
+            packet = [LiteralDataPacket packetWithBody:body];
             break;
             
         case PacketTypeSKESKey:

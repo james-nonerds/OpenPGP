@@ -48,7 +48,7 @@
 
 - (void)addPublicKey:(PublicKey *)publicKey forUserId:(NSString *)userId {
     if (_publicKeysByUserId[userId]) {
-        NSLog(@"Overwriting public key w/ user id: %@", userId);
+//        NSLog(@"Overwriting public key w/ user id: %@", userId);
     }
     
     _publicKeysByUserId[userId] = publicKey;
@@ -59,7 +59,7 @@
 
 - (void)addSecretKey:(SecretKey *)secretKey forUserId:(NSString *)userId {
     if (_secretKeysByUserId[userId]) {
-        NSLog(@"Overwriting secret key w/ user id: %@", userId);
+//        NSLog(@"Overwriting secret key w/ user id: %@", userId);
     }
     
     [self addPublicKey:secretKey.publicKey forUserId:userId];

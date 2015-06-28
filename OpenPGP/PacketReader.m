@@ -55,9 +55,7 @@ typedef NS_ENUM(NSUInteger, PacketLength) {
     return self;
 }
 
-- (Packet *)readPacketWithError:(NSError *__autoreleasing *)error {
-    *error = nil;
-    
+- (Packet *)readPacketWithError:(NSError *__autoreleasing *)error {    
     PacketType type = [self readPacketTagWithError:error];
     if (*error) return nil;
     

@@ -60,7 +60,18 @@
     ASCIIArmor *asciiArmor = [ASCIIArmor armorFromText:message];
     PacketList *packetList = [PacketList packetListFromData:asciiArmor.content];
     
-    [self decryptPacketList:packetList withKeyring:keyring];
+    PacketList *decryptedPacketList =  [self decryptPacketList:packetList withKeyring:keyring];
+    
+    LiteralDataPacket *literalDataPacket = nil;
+    for (Packet *packet in decryptedPacketList.packets) {
+        if (packet.packetType == PacketTypeLiteralData) {
+            literalDataPacket = (LiteralDataPacket *)packet;
+            break;
+        }
+    }
+    
+    NSString *decryptedMessage = [[NSString alloc] initWithData:literalDataPacket.data encoding:NSUTF8StringEncoding];
+    completionBlock(decryptedMessage, nil);
 }
 
 + (void)readPublicKeyMessages:(NSArray *)publicKeyMessages intoKeyring:(Keyring *)keyring {
@@ -87,12 +98,12 @@
     NSString *userId = nil;
     
     PublicKey *publicKey = nil;
-    Signature *signature = nil;
+//    Signature *signature = nil;
     
     PublicKey *publicSubkey = nil;
-    Signature *subkeySignature = nil;
+//    Signature *subkeySignature = nil;
     
-    BOOL lastKeyWasSubkey = NO;
+//    BOOL lastKeyWasSubkey = NO;
     
     for (Packet *packet in packetList.packets) {
         switch (packet.packetType) {
@@ -106,16 +117,16 @@
                 
             case PacketTypePublicSubkey:
                 publicSubkey = ((KeyPacket *) packet).publicKey;
-                lastKeyWasSubkey = YES;
+//                lastKeyWasSubkey = YES;
                 break;
                 
             case PacketTypeSignature:
-                if (lastKeyWasSubkey) {
-                    subkeySignature = ((SignaturePacket *) packet).signature;
-                    lastKeyWasSubkey = NO;
-                } else {
-                    signature = ((SignaturePacket *) packet).signature;
-                }
+//                if (lastKeyWasSubkey) {
+//                    subkeySignature = ((SignaturePacket *) packet).signature;
+//                    lastKeyWasSubkey = NO;
+//                } else {
+//                    signature = ((SignaturePacket *) packet).signature;
+//                }
                 break;
                 
             default:
@@ -123,6 +134,8 @@
                 break;
         }
     }
+    
+    // TODO: Verify key signatures.
     
     if (publicSubkey) {
         [publicKey addSubkey:publicSubkey];
@@ -140,10 +153,10 @@
     NSString *userId = nil;
     
     SecretKey *secretKey = nil;
-    Signature *signature = nil;
+//    Signature *signature = nil;
     
     SecretKey *secretSubkey = nil;
-    Signature *subkeySignature = nil;
+//    Signature *subkeySignature = nil;
     
     BOOL lastKeyWasSubkey = NO;
     
@@ -163,12 +176,12 @@
                 break;
                 
             case PacketTypeSignature:
-                if (lastKeyWasSubkey) {
-                    subkeySignature = ((SignaturePacket *) packet).signature;
-                    lastKeyWasSubkey = NO;
-                } else {
-                    signature = ((SignaturePacket *) packet).signature;
-                }
+//                if (lastKeyWasSubkey) {
+//                    subkeySignature = ((SignaturePacket *) packet).signature;
+//                    lastKeyWasSubkey = NO;
+//                } else {
+//                    signature = ((SignaturePacket *) packet).signature;
+//                }
                 break;
                 
             default:
@@ -239,6 +252,12 @@
     
     SymmetricAlgorithm symmetricAlgorithm = bytes[currentIndex++];
     
+    if (symmetricAlgorithm != SymmetricAlgorithmAES256) {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:@"Unsupported symmetric algorithm."
+                                     userInfo:@{@"symmetricAlgorithm": @(symmetricAlgorithm)}];
+    }
+    
 //    NSUInteger checksum = [Utility readNumber:bytes + currentIndex length:2];
 //    currentIndex += 2;
     
@@ -246,7 +265,7 @@
     
     NSData *decryptedData = [Crypto decryptData:dataPacket.encryptedData withSymmetricKey:bytes + currentIndex];
     
-    return nil;
+    return [PacketList packetListFromData:decryptedData];
 }
 
 + (NSError *)errorWithCause:(NSString *)cause {

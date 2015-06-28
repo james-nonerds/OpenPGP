@@ -91,12 +91,32 @@
     
     err = CCCryptorCreateWithMode(kCCDecrypt, kCCModeCFB, kCCAlgorithmAES, ccNoPadding, iv, symmetricKey, kCCKeySizeAES256, NULL, 0, 0, 0, &cryptor);
     
+    if (err) {
+        NSLog(@"Error with CCCryptor create: %i", err);
+    }
+    
     err = CCCryptorUpdate(cryptor, data.bytes, data.length, outbuf, length, &num);
+    
+    if (err) {
+        NSLog(@"Error with CCCryptor update: %i", err);
+    }
+    
     err = CCCryptorFinal(cryptor, outbuf, length, NULL);
     
-    NSLog(@"%s", outbuf);
+    if (err) {
+        NSLog(@"Error with CCCryptor final: %i", err);
+    }
     
-    return [NSData dataWithBytes:data.bytes length:data.length];
+    NSUInteger sz_pre = kCCBlockSizeAES128 + 2;
+    NSUInteger sz_mdc_hash = 20; // SHA1
+    NSUInteger sz_mdc = 2 + sz_mdc_hash;
+    NSUInteger sz_plaintext =  num - sz_pre - sz_mdc;
+    
+    // TODO: Verify plaintext integrity.
+    
+    Byte *plaintext = outbuf + sz_pre;
+    
+    return [NSData dataWithBytes:plaintext length:sz_plaintext];
 }
 
 @end

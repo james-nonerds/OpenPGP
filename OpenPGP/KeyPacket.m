@@ -91,22 +91,16 @@
     }
     
     
-    MPI *d = nil;
-    MPI *p = nil;
-    MPI *q = nil;
-    MPI *u = nil;
-    
-    d = [MPI mpiFromBytes:bytes + currentIndex];
+    MPI *d = [MPI mpiFromBytes:bytes + currentIndex];
     currentIndex += d.length;
     
-    p = [MPI mpiFromBytes:bytes + currentIndex];
+    MPI *p = [MPI mpiFromBytes:bytes + currentIndex];
     currentIndex += p.length;
     
-    q = [MPI mpiFromBytes:bytes + currentIndex];
+    MPI *q = [MPI mpiFromBytes:bytes + currentIndex];
     currentIndex += q.length;
     
-    u = [MPI mpiFromBytes:bytes + currentIndex];
-    currentIndex += u.length;
+    MPI *u = [MPI mpiFromBytes:bytes + currentIndex];
     
     SecretKey *secretKey = [SecretKey keyWithPublicKey:publicKey
                                                      d:d
