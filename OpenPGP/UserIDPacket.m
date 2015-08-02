@@ -33,4 +33,8 @@
     return self;
 }
 
+- (NSData *)body {
+    return [self.userId dataUsingEncoding:NSUTF8StringEncoding];
+}
+
 @end

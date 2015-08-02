@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A70AC41F1B6DAE5E00821883 /* Keypair.h in Headers */ = {isa = PBXBuildFile; fileRef = A70AC41D1B6DAE5E00821883 /* Keypair.h */; };
+		A70AC4201B6DAE5E00821883 /* Keypair.m in Sources */ = {isa = PBXBuildFile; fileRef = A70AC41E1B6DAE5E00821883 /* Keypair.m */; };
+		A70AC4211B6DC25C00821883 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A70AC4191B6DA71100821883 /* libcrypto.a */; };
+		A70AC4221B6DC25E00821883 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A70AC41A1B6DA71100821883 /* libssl.a */; };
 		A712FED21B3EF69B00B15747 /* OnePassSignaturePacket.h in Headers */ = {isa = PBXBuildFile; fileRef = A712FED01B3EF69B00B15747 /* OnePassSignaturePacket.h */; };
 		A712FED31B3EF69B00B15747 /* OnePassSignaturePacket.m in Sources */ = {isa = PBXBuildFile; fileRef = A712FED11B3EF69B00B15747 /* OnePassSignaturePacket.m */; };
 		A712FED61B3EF86500B15747 /* LiteralDataPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = A712FED41B3EF86500B15747 /* LiteralDataPacket.h */; };
@@ -20,8 +24,6 @@
 		A712FEED1B3F0D2300B15747 /* all-public-keys.json in Resources */ = {isa = PBXBuildFile; fileRef = A712FEEC1B3F0D2300B15747 /* all-public-keys.json */; };
 		A712FEFB1B3F608B00B15747 /* Crypto.h in Headers */ = {isa = PBXBuildFile; fileRef = A712FEF91B3F608B00B15747 /* Crypto.h */; };
 		A712FEFC1B3F608B00B15747 /* Crypto.m in Sources */ = {isa = PBXBuildFile; fileRef = A712FEFA1B3F608B00B15747 /* Crypto.m */; };
-		A71958401B3B51DF007116E1 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A719583E1B3B51DF007116E1 /* libcrypto.a */; };
-		A71958411B3B51DF007116E1 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A719583F1B3B51DF007116E1 /* libssl.a */; };
 		A71958441B3B51F7007116E1 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A71958431B3B51F7007116E1 /* libz.dylib */; };
 		A71958461B3B51FB007116E1 /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A71958451B3B51FB007116E1 /* libbz2.dylib */; };
 		A71958491B3B5482007116E1 /* MPI.h in Headers */ = {isa = PBXBuildFile; fileRef = A71958471B3B5482007116E1 /* MPI.h */; };
@@ -67,6 +69,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A70AC4191B6DA71100821883 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
+		A70AC41A1B6DA71100821883 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
+		A70AC41D1B6DAE5E00821883 /* Keypair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Keypair.h; sourceTree = "<group>"; };
+		A70AC41E1B6DAE5E00821883 /* Keypair.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Keypair.m; sourceTree = "<group>"; };
 		A712FED01B3EF69B00B15747 /* OnePassSignaturePacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnePassSignaturePacket.h; sourceTree = "<group>"; };
 		A712FED11B3EF69B00B15747 /* OnePassSignaturePacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnePassSignaturePacket.m; sourceTree = "<group>"; };
 		A712FED41B3EF86500B15747 /* LiteralDataPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiteralDataPacket.h; sourceTree = "<group>"; };
@@ -80,8 +86,6 @@
 		A712FEEC1B3F0D2300B15747 /* all-public-keys.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "all-public-keys.json"; sourceTree = "<group>"; };
 		A712FEF91B3F608B00B15747 /* Crypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Crypto.h; sourceTree = "<group>"; };
 		A712FEFA1B3F608B00B15747 /* Crypto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Crypto.m; sourceTree = "<group>"; };
-		A719583E1B3B51DF007116E1 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = ../../../../Cordova/test/plugins/com.humanpractice.cordova.pgp/src/ios/libcrypto.a; sourceTree = "<group>"; };
-		A719583F1B3B51DF007116E1 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = ../../../../Cordova/test/plugins/com.humanpractice.cordova.pgp/src/ios/libssl.a; sourceTree = "<group>"; };
 		A71958431B3B51F7007116E1 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		A71958451B3B51FB007116E1 /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = usr/lib/libbz2.dylib; sourceTree = SDKROOT; };
 		A71958471B3B5482007116E1 /* MPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPI.h; sourceTree = "<group>"; };
@@ -124,11 +128,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A70AC4221B6DC25E00821883 /* libssl.a in Frameworks */,
+				A70AC4211B6DC25C00821883 /* libcrypto.a in Frameworks */,
 				A7FEE29F1B403EF90043D289 /* Security.framework in Frameworks */,
 				A71958461B3B51FB007116E1 /* libbz2.dylib in Frameworks */,
 				A71958441B3B51F7007116E1 /* libz.dylib in Frameworks */,
-				A71958401B3B51DF007116E1 /* libcrypto.a in Frameworks */,
-				A71958411B3B51DF007116E1 /* libssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -156,8 +160,8 @@
 				A7FEE29E1B403EF90043D289 /* Security.framework */,
 				A71958451B3B51FB007116E1 /* libbz2.dylib */,
 				A71958431B3B51F7007116E1 /* libz.dylib */,
-				A719583E1B3B51DF007116E1 /* libcrypto.a */,
-				A719583F1B3B51DF007116E1 /* libssl.a */,
+				A70AC4191B6DA71100821883 /* libcrypto.a */,
+				A70AC41A1B6DA71100821883 /* libssl.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -214,6 +218,8 @@
 				A712FED91B3EFC1800B15747 /* Key.m */,
 				A712FEDC1B3EFCAA00B15747 /* Keyring.h */,
 				A712FEDD1B3EFCAA00B15747 /* Keyring.m */,
+				A70AC41D1B6DAE5E00821883 /* Keypair.h */,
+				A70AC41E1B6DAE5E00821883 /* Keypair.m */,
 			);
 			name = Key;
 			sourceTree = "<group>";
@@ -333,6 +339,7 @@
 				A770F8B11B39F43100D8E826 /* ASCIIArmor.h in Headers */,
 				A770F8C21B3A3E5A00D8E826 /* Packet.h in Headers */,
 				A71958491B3B5482007116E1 /* MPI.h in Headers */,
+				A70AC41F1B6DAE5E00821883 /* Keypair.h in Headers */,
 				A76DD0421B3C531800C911C3 /* PKESPacket.h in Headers */,
 				A76DD0461B3C534800C911C3 /* SEIPDataPacket.h in Headers */,
 				A770F8C61B3A444C00D8E826 /* PacketReader.h in Headers */,
@@ -454,6 +461,7 @@
 				A770F8B21B39F43100D8E826 /* ASCIIArmor.m in Sources */,
 				A7A691DC1B3E0A5200B55BA9 /* UserIDPacket.m in Sources */,
 				A712FEDF1B3EFCAA00B15747 /* Keyring.m in Sources */,
+				A70AC4201B6DAE5E00821883 /* Keypair.m in Sources */,
 				A76DD0471B3C534800C911C3 /* SEIPDataPacket.m in Sources */,
 				A712FEFC1B3F608B00B15747 /* Crypto.m in Sources */,
 				A770F8C31B3A3E5A00D8E826 /* Packet.m in Sources */,
@@ -577,14 +585,14 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/include",
+					"$(SRCROOT)/include/**",
 				);
 				INFOPLIST_FILE = OpenPGP/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/jamesknight/Documents/Cordova/test/plugins/com.humanpractice.cordova.pgp/src/ios,
+					"$(PROJECT_DIR)",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -601,7 +609,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/include",
+					"$(SRCROOT)/include/**",
 				);
 				INFOPLIST_FILE = OpenPGP/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -609,6 +617,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/jamesknight/Documents/Cordova/test/plugins/com.humanpractice.cordova.pgp/src/ios,
+					"$(PROJECT_DIR)",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

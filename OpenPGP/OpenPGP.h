@@ -16,4 +16,9 @@
                 completionBlock:(void (^)(NSString *decryptedMessage, NSArray *verifiedUserIds))completionBlock
                      errorBlock:(void (^)(NSError *))errorBlock;
 
+
++ (void)generateKeypairWithOptions:(NSDictionary *)options
+                   completionBlock:(void(^)(NSString *publicKey, NSString *privateKey))completionBlock
+                        errorBlock:(void(^)(NSError *error))errorBlock;
+
 @end

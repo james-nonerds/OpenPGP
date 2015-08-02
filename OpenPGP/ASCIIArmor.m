@@ -7,6 +7,7 @@
 //
 
 #import "ASCIIArmor.h"
+#
 
 #pragma mark - Constants
 
@@ -35,6 +36,13 @@ static NSString *const ASCIIArmorHeaderMessageXofY =  @"-----BEGIN PGP MESSAGE, 
 static NSString *const ASCIIArmorHeaderMessageX =     @"-----BEGIN PGP MESSAGE, PART %u-----";
 static NSString *const ASCIIArmorHeaderSignature =    @"-----BEGIN PGP SIGNATURE-----";
 
+static NSString *const ASCIIArmorFooterMessage =      @"-----END PGP MESSAGE-----";
+static NSString *const ASCIIArmorFooterPublicKey =    @"-----END PGP PUBLIC KEY BLOCK-----";
+static NSString *const ASCIIArmorFooterPrivateKey =   @"-----END PGP PRIVATE KEY BLOCK-----";
+static NSString *const ASCIIArmorFooterMessageXofY =  @"-----END PGP MESSAGE, PART %u/%y-----";
+static NSString *const ASCIIArmorFooterMessageX =     @"-----END PGP MESSAGE, PART %u-----";
+static NSString *const ASCIIArmorFooterSignature =    @"-----END PGP SIGNATURE-----";
+
 #pragma mark - ASCIIArmor extension
 
 
@@ -46,21 +54,21 @@ static NSString *const ASCIIArmorHeaderSignature =    @"-----BEGIN PGP SIGNATURE
 
 /// Text to ASCIIArmor:
 
-+ (ASCIIArmorHeaderType)typeForArmorHeader:(NSString *)armorHeader;
++ (ASCIIArmorType)typeForArmorHeader:(NSString *)armorHeader;
 + (NSData *)readContentString:(NSString *)contentString checksum:(NSString *)checksum;
 + (NSUInteger)checksumForBase64Data:(NSData *)data;
 + (NSUInteger)valueForChecksumString:(NSString *)checksumString;
 
 /// ASCIIArmor to text:
 
-+ (NSString *)armorHeaderForType:(ASCIIArmorHeaderType)type;
++ (NSString *)armorHeaderForType:(ASCIIArmorType)type;
 + (NSString *)checksumStringForChecksum:(NSUInteger)checksum;
 
 
 #pragma mark Private init
 
 
-- (id)initWithHeaderType:(ASCIIArmorHeaderType)type headers:(NSDictionary *)headers content:(NSData *)content;
+- (id)initWithHeaderType:(ASCIIArmorType)type headers:(NSDictionary *)headers content:(NSData *)content;
 
 
 @end
@@ -83,7 +91,7 @@ static NSString *const ASCIIArmorHeaderSignature =    @"-----BEGIN PGP SIGNATURE
     
     ASCIIArmorReadState state = ASCIIArmorReadStateArmorHeader;
     
-    ASCIIArmorHeaderType armorHeaderType = ASCIIArmorHeaderTypeUnknown;
+    ASCIIArmorType armorHeaderType = ASCIIArmorTypeUnknown;
     NSMutableDictionary *headers = [NSMutableDictionary dictionary];
     NSMutableString *contentString = [NSMutableString string];
     NSString *checksumString = nil;
@@ -93,7 +101,7 @@ static NSString *const ASCIIArmorHeaderSignature =    @"-----BEGIN PGP SIGNATURE
             case ASCIIArmorReadStateArmorHeader: {
                 armorHeaderType = [ASCIIArmor typeForArmorHeader:line];
                 
-                if (armorHeaderType == ASCIIArmorHeaderTypeUnknown) {
+                if (armorHeaderType == ASCIIArmorTypeUnknown) {
                     NSLog(@"Text is not armored, first line is: %@", line);
                     return nil;
                 }
@@ -154,54 +162,86 @@ static NSString *const ASCIIArmorHeaderSignature =    @"-----BEGIN PGP SIGNATURE
                                     content:content];
 }
 
-+ (ASCIIArmor *)armorFromPacketList:(PacketList *)packetList {
-    return nil;
++ (ASCIIArmor *)armorFromPacketList:(PacketList *)packetList type:(ASCIIArmorType)type {
+    return [[self alloc] initWithHeaderType:type
+                                    headers:@{@"Version": @"OpenPGP.js v0.11.1",
+                                                           @"Comment": @"http://openpgpjs.org"}
+                                    content:packetList.data];
 }
 
 
 #pragma mark Properties
 
 
-- (PacketList *)packetList {
-    return nil;
-}
-
 - (NSString *)text {
-    return nil;
+    NSMutableString *text = [NSMutableString string];
+    
+    [text appendString:[ASCIIArmor armorHeaderForType:self.type]];
+    [text appendString:PGPLineBreak];
+    
+    for (NSString *key in self.headers) {
+        NSString *value = self.headers[key];
+        
+        NSString *headerLine = [NSString stringWithFormat:@"%@: %@", key, value];
+        
+        [text appendString:headerLine];
+        [text appendString:PGPLineBreak];
+    }
+    
+    [text appendString:PGPLineBreak];
+    
+    NSDataBase64EncodingOptions options = NSDataBase64Encoding64CharacterLineLength | NSDataBase64EncodingEndLineWithCarriageReturn | NSDataBase64EncodingEndLineWithLineFeed;
+    
+    NSString *contentString = [self.content base64EncodedStringWithOptions:options];
+    [text appendString:contentString];
+    [text appendString:PGPLineBreak];
+    
+    NSUInteger checksum = [ASCIIArmor checksumForBase64Data:self.content];
+    NSString *checksumString = [ASCIIArmor checksumStringForChecksum:checksum];
+    
+    [text appendString:checksumString];
+    [text appendString:PGPLineBreak];
+    
+    
+    NSString *footerString = [ASCIIArmor armorFooterForType:self.type];
+    [text appendString:footerString];
+    [text appendString:PGPLineBreak];
+    
+    return [NSString stringWithString:text];
 }
 
 
 #pragma mark Private class methods
 
 
-+ (ASCIIArmorHeaderType)typeForArmorHeader:(NSString *)armorHeader {
++ (ASCIIArmorType)typeForArmorHeader:(NSString *)armorHeader {
     
     if ([armorHeader isEqualToString:ASCIIArmorHeaderMessage]) {
         
-        return ASCIIArmorHeaderTypeMessage;
+        return ASCIIArmorTypeMessage;
         
     } else if ([armorHeader isEqualToString:ASCIIArmorHeaderPublicKey]) {
         
-        return ASCIIArmorHeaderTypePublicKey;
+        return ASCIIArmorTypePublicKey;
         
     } else if ([armorHeader isEqualToString:ASCIIArmorHeaderPrivateKey]) {
         
-        return ASCIIArmorHeaderTypePrivateKey;
+        return ASCIIArmorTypePrivateKey;
         
     } else if ([armorHeader isEqualToString:ASCIIArmorHeaderMessageXofY]) {
         
-        return ASCIIArmorHeaderTypeMessageXofY;
+        return ASCIIArmorTypeMessageXofY;
         
     } else if ([armorHeader isEqualToString:ASCIIArmorHeaderMessageX]) {
         
-        return ASCIIArmorHeaderTypeMessageX;
+        return ASCIIArmorTypeMessageX;
         
     } else if ([armorHeader isEqualToString:ASCIIArmorHeaderSignature]) {
         
-        return ASCIIArmorHeaderTypeSignature;
+        return ASCIIArmorTypeSignature;
     }
     
-    return ASCIIArmorHeaderTypeUnknown;
+    return ASCIIArmorTypeUnknown;
 }
 
 + (NSData *)readContentString:(NSString *)contentString checksum:(NSString *)checksumString {
@@ -241,27 +281,52 @@ static NSString *const ASCIIArmorHeaderSignature =    @"-----BEGIN PGP SIGNATURE
             (octets[2] << 000);
 }
 
-+ (NSString *)armorHeaderForType:(ASCIIArmorHeaderType)type {
++ (NSString *)armorHeaderForType:(ASCIIArmorType)type {
     switch (type) {
-        case ASCIIArmorHeaderTypeMessage:
+        case ASCIIArmorTypeMessage:
             return ASCIIArmorHeaderMessage;
             
-        case ASCIIArmorHeaderTypePublicKey:
+        case ASCIIArmorTypePublicKey:
             return ASCIIArmorHeaderPublicKey;
             
-        case ASCIIArmorHeaderTypePrivateKey:
+        case ASCIIArmorTypePrivateKey:
             return ASCIIArmorHeaderPrivateKey;
             
-        case ASCIIArmorHeaderTypeMessageX:
+        case ASCIIArmorTypeMessageX:
             return ASCIIArmorHeaderMessageX;
             
-        case ASCIIArmorHeaderTypeMessageXofY:
+        case ASCIIArmorTypeMessageXofY:
             return ASCIIArmorHeaderMessageXofY;
             
-        case ASCIIArmorHeaderTypeSignature:
+        case ASCIIArmorTypeSignature:
             return ASCIIArmorHeaderSignature;
             
-        case ASCIIArmorHeaderTypeUnknown:
+        case ASCIIArmorTypeUnknown:
+            return nil;
+    }
+}
+
++ (NSString *)armorFooterForType:(ASCIIArmorType)type {
+    switch (type) {
+        case ASCIIArmorTypeMessage:
+            return ASCIIArmorFooterMessage;
+            
+        case ASCIIArmorTypePublicKey:
+            return ASCIIArmorFooterPublicKey;
+            
+        case ASCIIArmorTypePrivateKey:
+            return ASCIIArmorFooterPrivateKey;
+            
+        case ASCIIArmorTypeMessageX:
+            return ASCIIArmorFooterMessageX;
+            
+        case ASCIIArmorTypeMessageXofY:
+            return ASCIIArmorFooterMessageXofY;
+            
+        case ASCIIArmorTypeSignature:
+            return ASCIIArmorFooterSignature;
+            
+        case ASCIIArmorTypeUnknown:
             return nil;
     }
 }
@@ -279,11 +344,11 @@ static NSString *const ASCIIArmorHeaderSignature =    @"-----BEGIN PGP SIGNATURE
     return [@"=" stringByAppendingString:base64String];
 }
 
-- (id)initWithHeaderType:(ASCIIArmorHeaderType)type headers:(NSDictionary *)headers content:(NSData *)content {
+- (id)initWithHeaderType:(ASCIIArmorType)type headers:(NSDictionary *)headers content:(NSData *)content {
     self = [super init];
     
     if (self != nil) {
-        _armorHeaderType = type;
+        _type = type;
         _headers = headers;
         _content = content;
     }

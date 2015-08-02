@@ -88,6 +88,56 @@
                                  userInfo:@{@"method": NSStringFromSelector(_cmd)}];
 }
 
++ (void)writePacketLength:(NSUInteger)length toData:(NSMutableData *)data {
+    if (length <= 191) {
+        Byte bytes[1];
+        
+        bytes[0] = length & 0xFF;
+        
+        [data appendBytes:bytes length:1];
+        
+    } else if (length >= 192 && length <= 8383) {
+        Byte bytes[2];
+        
+        bytes[0] = (((length - 192) >> 8) & 0xFF) + 192;
+        bytes[1] = (length - 192) & 0xFF;
+        
+        [data appendBytes:bytes length:2];
+        
+    } else {
+        Byte bytes[5];
+        
+        bytes[0] = 0xFF;
+        bytes[1] = (length >> 24) & 0xFF;
+        bytes[2] = (length >> 16) & 0xFF;
+        bytes[3] = (length >> 8) & 0xFF;
+        bytes[4] = length & 0xFF;
+    }
+}
+
+- (NSData *)body {
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                   reason:[NSString stringWithFormat:@"You must override this method in a subclass."]
+                                 userInfo:@{@"method": NSStringFromSelector(_cmd)}];
+}
+
+- (NSData *)data {
+    NSMutableData *data = [NSMutableData data];
+    
+    // Write the "always set" and "format 4" bits:
+    Byte packetTag[1] = {0x80 | 0x40 | self.packetType};
+    [data appendBytes:packetTag length:1];
+    
+    NSData *body = self.body;
+    [Packet writePacketLength:body.length toData:data];
+    
+    [data appendData:body];
+    
+    NSLog(@"Packet type: %lu, body: %@", self.packetType, body.description);
+    
+    return [NSData dataWithData:data];
+}
+
 @end
 
 

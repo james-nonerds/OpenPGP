@@ -14,7 +14,11 @@
 @property (nonatomic, readonly) NSUInteger length;
 @property (nonatomic, readonly) BIGNUM *bn;
 
+@property (nonatomic, readonly) NSData *data;
+
 + (MPI *)mpiFromBytes:(const Byte *)bytes byteCount:(NSUInteger)byteCount;
 + (MPI *)mpiFromBytes:(const Byte *)bytes;
+
++ (MPI *)mpiWithBIGNUM:(BIGNUM *)bn;
 
 @end

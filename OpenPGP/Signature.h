@@ -29,7 +29,7 @@ typedef NS_ENUM(NSUInteger, SignatureType) {
     
     SignatureTypeTimestamp = 0x40,
     
-    SignatureTypeThirdPartyCOnfirmation = 0x50
+    SignatureTypeThirdPartyConfirmation = 0x50
 };
 
 @interface Signature : NSObject

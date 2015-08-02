@@ -55,7 +55,6 @@
     MPI *e = [MPI mpiFromBytes:bytes + currentIndex];
     currentIndex += e.length;
     
-    
     // Calculate fingerprint:
     Byte fingerprintBytes[currentIndex + 3];
     
@@ -111,6 +110,15 @@
     return [[self alloc] initWithSecretKey:secretKey];
 }
 
+
++ (KeyPacket *)packetWithPublicKey:(PublicKey *)publicKey {
+    return [[self alloc] initWithPublicKey:publicKey];
+}
+
++ (KeyPacket *)packetWithSecretKey:(SecretKey *)secretKey {
+    return [[self alloc] initWithSecretKey:secretKey];
+}
+
 - (instancetype)initWithPublicKey:(PublicKey *)publicKey {
     return [self initWithPublicKey:publicKey secretKey:nil];
 }
@@ -118,7 +126,6 @@
 - (instancetype)initWithSecretKey:(SecretKey *)secretKey {
     return [self initWithPublicKey:nil secretKey:secretKey];
 }
-
 
 - (instancetype)initWithPublicKey:(PublicKey *)publicKey
                         secretKey:(SecretKey *)secretKey {
@@ -130,6 +137,48 @@
     }
     
     return self;
+}
+
+- (NSData *)body {
+    NSMutableData *data = [NSMutableData data];
+    
+    if (_publicKey) {
+        
+        [KeyPacket writeData:data withPublicKey:_publicKey];
+        
+    } else if (_secretKey) {
+        
+        [KeyPacket writeData:data withPublicKey:_secretKey.publicKey];
+        [KeyPacket writeData:data withSecretKey:_secretKey];
+        
+    }
+    
+    return [NSData dataWithData:data];
+}
+
++ (void)writeData:(NSMutableData *)data withPublicKey:(PublicKey *)publicKey {
+    Byte header[6];
+    header[0] = 4;
+    
+    [Utility writeNumber:publicKey.creationTime bytes:header + 1 length:4];
+    
+    header[5] = PublicKeyAlgorithmRSAEncryptSign;
+    
+    [data appendBytes:header length:6];
+    [data appendData:publicKey.n.data];
+    [data appendData:publicKey.e.data];
+}
+
++ (void)writeData:(NSMutableData *)data withSecretKey:(SecretKey *)secretKey {
+    Byte header[1];
+    header[0] = 0;
+    
+    [data appendBytes:header length:1];
+    
+    [data appendData:secretKey.d.data];
+    [data appendData:secretKey.p.data];
+    [data appendData:secretKey.q.data];
+    [data appendData:secretKey.u.data];
 }
 
 @end

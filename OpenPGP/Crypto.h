@@ -8,10 +8,14 @@
 
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonCrypto.h>
-#import "Key.h"
+
+@class MPI, Keypair, SecretKey;
 
 typedef NS_ENUM(NSUInteger, CompressionAlgorithm) {
-    CompressionAlgorithmDefault = 1
+    CompressionAlgorithmUncompressed = 0,
+    CompressionAlgorithmZIP = 1,
+    CompressionAlgorithmZLIB = 2,
+    CompressionAlgorithmBZip2 = 3
 };
 
 typedef NS_ENUM(NSUInteger, HashAlgorithm) {
@@ -50,5 +54,7 @@ typedef NS_ENUM(NSUInteger, SymmetricAlgorithm) {
 + (NSData *)decryptMessage:(MPI *)message withSecretKey:(SecretKey *)key;
 
 + (NSData *)decryptData:(NSData *)data withSymmetricKey:(const Byte *)symmetricKey;
+
++ (Keypair *)generateKeypairWithBits:(int)bits;
 
 @end

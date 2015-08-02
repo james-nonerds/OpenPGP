@@ -26,6 +26,46 @@
     return [NSString stringWithCString:keyId encoding:NSUTF8StringEncoding];
 }
 
++ (void)writeKeyID:(NSString *)keyId toBytes:(Byte *)bytes {
+    
+    static const char	*uppers = "0123456789ABCDEF";
+    static const char	*lowers = "0123456789abcdef";
+    
+    const char		*hi;
+    const char		*lo;
+    
+    uint8_t			 hichar;
+    uint8_t			 lochar;
+    
+    size_t			 j;
+    int			 i;
+    
+    const char *userid = [keyId cStringUsingEncoding:NSUTF8StringEncoding];
+    size_t len = keyId.length;
+    
+    for (i = 0, j = 0 ; j < len && userid[i] && userid[i + 1] ; i += 2, j++) {
+        if ((hi = strchr(uppers, userid[i])) == NULL) {
+            if ((hi = strchr(lowers, userid[i])) == NULL) {
+                break;
+            }
+            hichar = (uint8_t)(hi - lowers);
+        } else {
+            hichar = (uint8_t)(hi - uppers);
+        }
+        if ((lo = strchr(uppers, userid[i + 1])) == NULL) {
+            if ((lo = strchr(lowers, userid[i + 1])) == NULL) {
+                break;
+            }
+            lochar = (uint8_t)(lo - lowers);
+        } else {
+            lochar = (uint8_t)(lo - uppers);
+        }
+        bytes[j] = (hichar << 4) | (lochar);
+    }
+    
+    bytes[j] = 0x0;
+}
+
 + (NSUInteger)readNumber:(const Byte *)bytes length:(NSUInteger)length {
     NSUInteger number = 0;
     
@@ -55,6 +95,16 @@
     *poutput = '\0';
     
     return [NSString stringWithCString:output encoding:NSUTF8StringEncoding];
+}
+
++ (void)writeNumber:(NSUInteger)number bytes:(Byte *)bytes length:(NSUInteger)length {
+    NSUInteger index = 0;
+    NSUInteger shift = (length - 1) * 8;
+        
+    while (length-- > 0) {
+        bytes[index++] = (number >> shift) & 0xFF;
+        shift -= 8;
+    }
 }
 
 @end

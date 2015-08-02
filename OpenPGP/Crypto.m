@@ -9,6 +9,8 @@
 #import <openssl/aes.h>
 #import <openssl/rsa.h>
 #import "Crypto.h"
+#import "Key.h"
+#import "Keypair.h"
 
 @interface RSAWrapper : NSObject
 
@@ -117,6 +119,38 @@
     Byte *plaintext = outbuf + sz_pre;
     
     return [NSData dataWithBytes:plaintext length:sz_plaintext];
+}
+
++ (Keypair *)generateKeypairWithBits:(int)bits {
+    RSA *rsa;
+    BIGNUM *bne;
+    BN_CTX *ctx;
+    
+    ctx = BN_CTX_new();
+    
+    bne = BN_new();
+    BN_set_word(bne, RSA_F4);
+    
+    rsa = RSA_new();
+    RSA_generate_key_ex(rsa, bits, bne, NULL);
+    
+    NSDate *now = [NSDate date];
+    NSUInteger timestamp = [now timeIntervalSince1970];
+    
+    MPI *n = [MPI mpiWithBIGNUM:rsa->n];
+    MPI *e = [MPI mpiWithBIGNUM:rsa->e];
+    
+    MPI *d = [MPI mpiWithBIGNUM:rsa->d];
+    MPI *p = [MPI mpiWithBIGNUM:rsa->p];
+    MPI *q = [MPI mpiWithBIGNUM:rsa->q];
+    MPI *u = [MPI mpiWithBIGNUM:BN_mod_inverse(NULL, rsa->p, rsa->q, ctx)];
+    
+    BN_CTX_free(ctx);
+    
+    PublicKey *publicKey = [PublicKey keyWithCreationTime:timestamp n:n e:e];
+    SecretKey *secretKey = [SecretKey keyWithPublicKey:publicKey d:d p:p q:q u:u];
+    
+    return [Keypair keypairWithPublicKey:publicKey secretKey:secretKey];
 }
 
 @end

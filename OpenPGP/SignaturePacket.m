@@ -92,24 +92,6 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
 
 + (NSUInteger)readPacketLength:(const Byte *)bytes index:(NSUInteger *)index;
 
-- (instancetype)initV3WithSignatureType:(SignatureType)signatureType
-                           creationTime:(NSUInteger)creationTime
-                                  keyId:(NSString *)keyId
-                        signedHashValue:(NSUInteger)signedHashValue
-                             encryptedM:(MPI *)encryptedM;
-
-- (instancetype)initV4WithSignatureType:(SignatureType)signatureType
-                               hashData:(NSData *)hashData
-                       hashedSubpackets:(NSData *)hashedSubpackets
-                     unhashedSubpackets:(NSData *)unhashedSubpackets
-                        signedHashValue:(NSUInteger)signedHashValue
-                             encryptedM:(MPI *)encryptedM;
-
-- (instancetype)initWithVersionNumber:(NSUInteger)versionNumber
-                        signatureType:(SignatureType)signatureType
-                      signedHashValue:(NSUInteger)signedHashValue
-                           encryptedM:(MPI *)encryptedM;
-
 - (void)readSubpackets:(NSData *)subpackets;
 
 
@@ -164,6 +146,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
             MPI *encryptedM = [MPI mpiFromBytes:(bytes + SignaturePacketV3MPIIndex)];
             
             return [[self alloc] initV3WithSignatureType:signatureType
+                                      publicKeyAlgorithm:publicKeyAlgorithm
+                                           hashAlgorithm:hashAlgorithm
                                             creationTime:creationTime
                                                    keyId:keyId
                                          signedHashValue:signedHashValue
@@ -221,6 +205,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
             MPI *encryptedM = [MPI mpiFromBytes:(bytes + hashValueIndex + 2)];
             
             return [[self alloc] initV4WithSignatureType:signatureType
+                                      publicKeyAlgorithm:publicKeyAlgorithm
+                                           hashAlgorithm:hashAlgorithm
                                                 hashData:hashData
                                         hashedSubpackets:hashedSubpackets
                                       unhashedSubpackets:unhashedSubpackets
@@ -264,6 +250,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
 }
 
 - (instancetype)initV3WithSignatureType:(SignatureType)signatureType
+                     publicKeyAlgorithm:(PublicKeyAlgorithm)publicKeyAlgorithm
+                          hashAlgorithm:(HashAlgorithm)hashAlgorithm
                            creationTime:(NSUInteger)creationTime
                                   keyId:(NSString *)keyId
                         signedHashValue:(NSUInteger)signedHashValue
@@ -271,6 +259,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
     
     self = [self initWithVersionNumber:3
                          signatureType:signatureType
+                    publicKeyAlgorithm:publicKeyAlgorithm
+                         hashAlgorithm:hashAlgorithm
                        signedHashValue:signedHashValue
                             encryptedM:encryptedM];
     
@@ -283,6 +273,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
 }
 
 - (instancetype)initV4WithSignatureType:(SignatureType)signatureType
+                     publicKeyAlgorithm:(PublicKeyAlgorithm)publicKeyAlgorithm
+                          hashAlgorithm:(HashAlgorithm)hashAlgorithm
                                hashData:(NSData *)hashData
                        hashedSubpackets:(NSData *)hashedSubpackets
                      unhashedSubpackets:(NSData *)unhashedSubpackets
@@ -291,6 +283,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
     
     self = [self initWithVersionNumber:4
                          signatureType:signatureType
+                    publicKeyAlgorithm:publicKeyAlgorithm
+                         hashAlgorithm:hashAlgorithm
                        signedHashValue:signedHashValue
                             encryptedM:encryptedM];
     
@@ -304,6 +298,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
 
 - (instancetype)initWithVersionNumber:(NSUInteger)versionNumber
                         signatureType:(SignatureType)signatureType
+                   publicKeyAlgorithm:(PublicKeyAlgorithm)publicKeyAlgorithm
+                        hashAlgorithm:(HashAlgorithm)hashAlgorithm
                       signedHashValue:(NSUInteger)signedHashValue
                            encryptedM:(MPI *)encryptedM {
     self = [super init];
@@ -311,6 +307,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
     if (self != nil) {
         _versionNumber = versionNumber;
         _signatureType = signatureType;
+        _publicKeyAlgorithm = publicKeyAlgorithm;
+        _hashAlgorithm = hashAlgorithm;
         _signedHashValue = signedHashValue;
         _encryptedM = encryptedM;
     }
@@ -319,12 +317,16 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
 }
 
 - (void)readSubpackets:(NSData *)subpackets {
+    NSLog(@"Reading subpackets.");
+    
     const Byte *bytes = subpackets.bytes;
     NSUInteger currentIndex = 0;
     
     while (currentIndex < subpackets.length) {
         NSUInteger packetLength = [SignaturePacket readPacketLength:bytes index:&currentIndex];
         SignatureSubpacketType type = bytes[currentIndex++];
+        
+        NSLog(@"Length: %lu, type: %lu.", packetLength, type);
         
         const Byte *packetBytes = bytes + currentIndex;
         
@@ -343,7 +345,7 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
             case SignatureSubpacketPreferredSymmetricAlgorithms: {
                 NSMutableArray *array = [NSMutableArray array];
                 
-                for (int i = 0; i < packetLength; i++) {
+                for (int i = 0; i < packetLength - 1; i++) {
                     SymmetricAlgorithm symmetricAlgorithm = packetBytes[i];
                     [array addObject:@(symmetricAlgorithm)];
                 }
@@ -357,12 +359,12 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
                 
                 NSMutableArray *array = [NSMutableArray array];
                 
-                for (int i = 0; i < packetLength; i++) {
+                for (int i = 0; i < packetLength - 1; i++) {
                     HashAlgorithm hashAlgorithm = packetBytes[i];
                     [array addObject:@(hashAlgorithm)];
                 }
                 
-                _preferredSymmetricAlgorithms = [NSArray arrayWithArray:array];
+                _preferredHashAlgorithms = [NSArray arrayWithArray:array];
                 
                 break;
             }
@@ -371,12 +373,12 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
                 
                 NSMutableArray *array = [NSMutableArray array];
                 
-                for (int i = 0; i < packetLength; i++) {
+                for (int i = 0; i < packetLength - 1; i++) {
                     CompressionAlgorithm compressionAlgorithm = packetBytes[i];
                     [array addObject:@(compressionAlgorithm)];
                 }
                 
-                _preferredSymmetricAlgorithms = [NSArray arrayWithArray:array];
+                _preferredCompressionAlgorithms = [NSArray arrayWithArray:array];
                 
                 break;
             }
@@ -393,23 +395,27 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
             case SignatureSubpacketKeyFlags: {
                 NSMutableArray *array = [NSMutableArray array];
                 
-                for (int i = 0; i < packetLength; i++) {
+                for (int i = 0; i < packetLength - 1; i++) {
                     NSUInteger flag = packetBytes[i];
                     [array addObject:@(flag)];
                 }
                 
-                _keyFlags= [NSArray arrayWithArray:array];
+                _keyFlags = [NSArray arrayWithArray:array];
+                
+                break;
             }
                 
             case SignatureSubpacketFeatures: {
                 NSMutableArray *array = [NSMutableArray array];
                 
-                for (int i = 0; i < packetLength; i++) {
+                for (int i = 0; i < packetLength - 1; i++) {
                     NSUInteger flag = packetBytes[i];
                     [array addObject:@(flag)];
                 }
                 
                 _features = [NSArray arrayWithArray:array];
+                
+                break;
             }
                 
             default:
@@ -422,6 +428,196 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
 
 - (Signature *)signature {
     return nil;
+}
+
+- (NSData *)body {
+    NSMutableData *data = [NSMutableData data];
+    
+    Byte header[6];
+    
+    header[0] = 4;
+    header[1] = self.signatureType;
+    header[2] = self.publicKeyAlgorithm;
+    header[3] = self.hashAlgorithm;
+    
+    NSData *hashedSubpacketData = [self hashedSubpacketData];
+    
+    header[4] = (hashedSubpacketData.length >> 8) & 0xFF;
+    header[5] = hashedSubpacketData.length & 0xFF;
+    
+    [data appendBytes:header length:6];
+    [data appendData:hashedSubpacketData];
+    
+    Byte secondHeader[4];
+    
+    // Unhashed length:
+    secondHeader[0] = 0;
+    secondHeader[1] = 0;
+    
+    // Left 16 bits of signed hash:
+    secondHeader[2] = (self.signedHashValue >> 8) & 0xFF;
+    secondHeader[3] = self.signedHashValue & 0xFF;
+    
+    [data appendBytes:secondHeader length:4];
+    [data appendData:self.encryptedM.data];
+    
+    return [NSData dataWithData:data];
+}
+
+- (NSData *)hashedSubpacketData {
+    NSMutableData *data = [NSMutableData data];
+    
+    [self writeCreationTime:data];
+    
+    if (self.preferredSymmetricAlgorithms) {
+        [self writeSymmetricAlgorithms:data];
+    }
+    
+    [self writeKeyID:data];
+    
+    if (self.preferredHashAlgorithms) {
+        [self writeHashAlgorithms:data];
+    }
+    
+    if (self.preferredCompressionAlgorithms) {
+        [self writeCompressionAlgorithms:data];
+    }
+    
+    if (self.keyFlags) {
+        [self writeKeyFlags:data];
+    }
+    
+    if (self.features) {
+        [self writeFeatures:data];
+    }
+    
+    return [NSData dataWithData:data];
+}
+
+- (void)writeKeyID:(NSMutableData *)data {
+    Byte subpacket[11];
+    
+    subpacket[0] = 9;
+    subpacket[1] = SignatureSubpacketIssuer;
+    
+    [Utility writeKeyID:self.keyId toBytes:subpacket + 2];
+    
+    [data appendBytes:subpacket length:10];
+}
+
+- (void)writeCreationTime:(NSMutableData *)data {
+    Byte subpacket[6];
+    
+    subpacket[0] = 5;
+    subpacket[1] = SignatureSubpacketCreationTime;
+    
+    [Utility writeNumber:self.creationTime bytes:subpacket + 2 length:4];
+    
+    [data appendBytes:subpacket length:6];
+}
+
+- (void)writeSymmetricAlgorithms:(NSMutableData *)data {
+    NSUInteger algorithmCount = self.preferredSymmetricAlgorithms.count;
+    NSUInteger byteCount = algorithmCount + 2;
+    
+    Byte *subpacket = calloc(byteCount, sizeof(Byte));
+    
+    subpacket[0] = algorithmCount + 1;
+    subpacket[1] = SignatureSubpacketPreferredSymmetricAlgorithms;
+    
+    for (int i = 0; i < algorithmCount; ++i) {
+        NSNumber *number = self.preferredSymmetricAlgorithms[i];
+        SymmetricAlgorithm algorithm = (SymmetricAlgorithm) number.unsignedIntegerValue;
+        
+        subpacket[i + 2] = algorithm;
+    }
+    
+    [data appendBytes:subpacket length:byteCount];
+    
+    free(subpacket);
+}
+
+- (void)writeHashAlgorithms:(NSMutableData *)data {
+    
+    NSUInteger algorithmCount = self.preferredHashAlgorithms.count;
+    NSUInteger byteCount = algorithmCount + 2;
+    
+    Byte *subpacket = calloc(byteCount, sizeof(Byte));
+    
+    subpacket[0] = algorithmCount + 1;
+    subpacket[1] = SignatureSubpacketPreferredHashAlgorithms;
+    
+    for (int i = 0; i < algorithmCount; ++i) {
+        NSNumber *number = self.preferredHashAlgorithms[i];
+        HashAlgorithm algorithm = (HashAlgorithm) number.unsignedIntegerValue;
+        
+        subpacket[i + 2] = algorithm;
+    }
+    
+    [data appendBytes:subpacket length:byteCount];
+    
+    free(subpacket);
+}
+
+
+- (void)writeCompressionAlgorithms:(NSMutableData *)data {
+    
+    NSUInteger algorithmCount = self.preferredCompressionAlgorithms.count;
+    NSUInteger byteCount = algorithmCount + 2;
+    
+    Byte *subpacket = calloc(byteCount, sizeof(Byte));
+    
+    subpacket[0] = algorithmCount + 1;
+    subpacket[1] = SignatureSubpacketPreferredCompressionAlgorithms;
+    
+    for (int i = 0; i < algorithmCount; ++i) {
+        NSNumber *number = self.preferredCompressionAlgorithms[i];
+        CompressionAlgorithm algorithm = (CompressionAlgorithm) number.unsignedIntegerValue;
+        
+        subpacket[i + 2] = algorithm;
+    }
+    
+    [data appendBytes:subpacket length:byteCount];
+    
+    free(subpacket);
+}
+
+- (void)writeKeyFlags:(NSMutableData *)data {
+    
+    NSUInteger flagCount = self.keyFlags.count;
+    NSUInteger byteCount = flagCount + 2;
+    
+    Byte *subpacket = calloc(byteCount, sizeof(Byte));
+    
+    subpacket[0] = flagCount + 1;
+    subpacket[1] = SignatureSubpacketKeyFlags;
+    
+    for (int i = 0; i < flagCount; ++i) {
+        subpacket[i + 2] = ((NSNumber *) self.keyFlags[i]).unsignedIntegerValue;
+    }
+    
+    [data appendBytes:subpacket length:byteCount];
+    
+    free(subpacket);
+}
+
+- (void)writeFeatures:(NSMutableData *)data {
+    
+    NSUInteger featureCount = self.features.count;
+    NSUInteger byteCount = featureCount + 2;
+    
+    Byte *subpacket = calloc(byteCount, sizeof(Byte));
+    
+    subpacket[0] = featureCount + 1;
+    subpacket[1] = SignatureSubpacketFeatures;
+    
+    for (int i = 0; i < featureCount; ++i) {
+        subpacket[i + 2] = ((NSNumber *) self.features[i]).unsignedIntegerValue;
+    }
+    
+    [data appendBytes:subpacket length:byteCount];
+    
+    free(subpacket);
 }
 
 @end

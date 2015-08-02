@@ -58,6 +58,11 @@
                                             e:e];
 }
 
+
++ (PublicKey *)keyWithCreationTime:(NSUInteger)creationTime n:(MPI *)n e:(MPI *)e {
+    return [[self alloc] initWithCreationTime:creationTime fingerprint:nil n:n e:e];
+}
+
 - (instancetype)initWithCreationTime:(NSUInteger)creationTime
                          fingerprint:(NSString *)fingerprint
                                    n:(MPI *)n
@@ -94,7 +99,7 @@
 
 @implementation SecretKey
 
-+ (PublicKey *)keyWithPublicKey:(PublicKey *)publicKey
++ (SecretKey *)keyWithPublicKey:(PublicKey *)publicKey
                               d:(MPI *)d
                               p:(MPI *)p
                               q:(MPI *)q

@@ -14,6 +14,7 @@
 #import "Signature.h"
 #import "PKESPacket.h"
 #import "KeyPacket.h"
+#import "Keypair.h"
 #import "LiteralDataPacket.h"
 #import "OnePassSignaturePacket.h"
 #import "SEIPDataPacket.h"
@@ -63,15 +64,61 @@
     PacketList *decryptedPacketList =  [self decryptPacketList:packetList withKeyring:keyring];
     
     LiteralDataPacket *literalDataPacket = nil;
+    SignaturePacket *signaturePacket = nil;
+    
     for (Packet *packet in decryptedPacketList.packets) {
-        if (packet.packetType == PacketTypeLiteralData) {
-            literalDataPacket = (LiteralDataPacket *)packet;
-            break;
+        switch (packet.packetType) {
+            case PacketTypeLiteralData:
+                literalDataPacket = (LiteralDataPacket *) packet;
+                break;
+            
+            case PacketTypeSignature:
+                signaturePacket = (SignaturePacket *) packet;
+                break;
+                
+            default:
+                break;
         }
     }
     
-    NSString *decryptedMessage = [[NSString alloc] initWithData:literalDataPacket.data encoding:NSUTF8StringEncoding];
-    completionBlock(decryptedMessage, nil);
+    NSString *decryptedMessage = [[NSString alloc] initWithData:literalDataPacket.literalData encoding:NSUTF8StringEncoding];
+    NSString *signatureKeyId = signaturePacket.keyId;
+    
+    PublicKey *publicKey = [keyring publicKeyForKeyId:signatureKeyId];
+    
+    completionBlock(decryptedMessage, @[publicKey.userId]);
+}
+
+
++ (void)generateKeypairWithOptions:(NSDictionary *)options
+                   completionBlock:(void(^)(NSString *publicKey, NSString *privateKey))completionBlock
+                        errorBlock:(void(^)(NSError *error))errorBlock {
+    
+    NSNumber *bits = options[@"bits"] ?: @(1024);
+    Keypair *keypair = [Crypto generateKeypairWithBits:bits.intValue];
+    
+    PacketList *publicKeyPacketList = [self packetListForPublicKey:keypair.publicKey];
+    PacketList *secretKeyPacketList = [self packetListForSecretKey:keypair.secretKey];
+    
+    ASCIIArmor *publicKeyArmor = [ASCIIArmor armorFromPacketList:publicKeyPacketList type:ASCIIArmorTypePublicKey];
+    ASCIIArmor *secretKeyArmor = [ASCIIArmor armorFromPacketList:secretKeyPacketList type:ASCIIArmorTypePrivateKey];
+    
+    NSString *publicKeyString = publicKeyArmor.text;
+    NSString *secretKeyString = secretKeyArmor.text;
+    
+    completionBlock(publicKeyString, secretKeyString);
+}
+
+#pragma mark - Private
+
++ (PacketList *)packetListForPublicKey:(PublicKey *)publicKey {
+    KeyPacket *publicKeyPacket = [KeyPacket packetWithPublicKey:publicKey];
+    return [PacketList packetListWithPackets:@[publicKeyPacket]];
+}
+
++ (PacketList *)packetListForSecretKey:(SecretKey *)secretKey {
+    KeyPacket *secretKeyPacket = [KeyPacket packetWithSecretKey:secretKey];
+    return [PacketList packetListWithPackets:@[secretKeyPacket]];
 }
 
 + (void)readPublicKeyMessages:(NSArray *)publicKeyMessages intoKeyring:(Keyring *)keyring {
@@ -79,7 +126,6 @@
     for (NSString *publicKeyMessage in publicKeyMessages) {
         [self readPublicKeyMessage:publicKeyMessage intoKeyring:keyring];
     }
-    
 }
 
 + (void)readSecretKeyMessages:(NSArray *)secretKeyMessages intoKeyring:(Keyring *)keyring {
@@ -87,7 +133,6 @@
     for (NSString *secretKeyMessage in secretKeyMessages) {
         [self readSecretKeyMessage:secretKeyMessage intoKeyring:keyring];
     }
-    
 }
 
 + (void)readPublicKeyMessage:(NSString *)publicKeyMessage intoKeyring:(Keyring *)keyring {
@@ -135,10 +180,15 @@
         }
     }
     
+    if (publicKey != nil) {
+        publicKey.userId = userId;
+    }
+    
     // TODO: Verify key signatures.
     
     if (publicSubkey) {
         [publicKey addSubkey:publicSubkey];
+        publicSubkey.userId = userId;
     }
     
     // TODO: Verify key.
@@ -153,10 +203,8 @@
     NSString *userId = nil;
     
     SecretKey *secretKey = nil;
-//    Signature *signature = nil;
     
     SecretKey *secretSubkey = nil;
-//    Signature *subkeySignature = nil;
     
     BOOL lastKeyWasSubkey = NO;
     
@@ -176,12 +224,6 @@
                 break;
                 
             case PacketTypeSignature:
-//                if (lastKeyWasSubkey) {
-//                    subkeySignature = ((SignaturePacket *) packet).signature;
-//                    lastKeyWasSubkey = NO;
-//                } else {
-//                    signature = ((SignaturePacket *) packet).signature;
-//                }
                 break;
                 
             default:
@@ -190,8 +232,13 @@
         }
     }
     
+    if (secretKey != nil) {
+        secretKey.userId = userId;
+    }
+    
     if (secretSubkey) {
         [secretKey addSubkey:secretSubkey];
+        secretSubkey.userId = userId;
     }
     
     // TODO: Verify key.

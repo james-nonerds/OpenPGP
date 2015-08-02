@@ -19,7 +19,7 @@ typedef NS_ENUM(Byte, DataFormat) {
 @property (nonatomic, readonly) DataFormat dataFormat;
 @property (nonatomic, readonly) NSString *filename;
 @property (nonatomic, readonly) NSUInteger date;
-@property (nonatomic, readonly) NSData *data;
+@property (nonatomic, readonly) NSData *literalData;
 @property (nonatomic, readonly) NSString *textData;
 
 @end

@@ -11,6 +11,7 @@
 
 @interface Key : NSObject
 
+@property (nonatomic, strong) NSString *userId;
 @property (nonatomic, readonly) NSArray *subkeys;
 
 - (void)addSubkey:(Key *)subkey;
@@ -31,6 +32,8 @@
                        fingerprint:(NSString *)fingerPrint
                                  n:(MPI *)n
                                  e:(MPI *)e;
+
++ (PublicKey *)keyWithCreationTime:(NSUInteger)creationTime n:(MPI *)n e:(MPI *)e;
 
 @end
 

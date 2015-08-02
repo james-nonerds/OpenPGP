@@ -28,4 +28,7 @@ typedef NS_ENUM(NSUInteger, KeyType) {
 
 + (KeyPacket *)packetWithBody:(NSData *)body;
 
++ (KeyPacket *)packetWithPublicKey:(PublicKey *)publicKey;
++ (KeyPacket *)packetWithSecretKey:(SecretKey *)secretKey;
+
 @end

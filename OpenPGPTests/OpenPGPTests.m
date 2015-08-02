@@ -40,21 +40,45 @@
     [super tearDown];
 }
 
-- (void)testReadArmor {
+//- (void)testReadArmor {
+//    
+//    ASCIIArmor *armor = [ASCIIArmor armorFromText:self.message];
+//    
+//    XCTAssertEqual(armor.type, ASCIIArmorTypeMessage);
+//    
+//    for (NSString *key in armor.headers) {
+//        if ([key isEqualToString:@"Version"]) {
+//            XCTAssertEqualObjects(armor.headers[key], @"OpenPGP.js v0.11.1");
+//        } else if ([key isEqualToString:@"Comment"]) {
+//            XCTAssertEqualObjects(armor.headers[key], @"http://openpgpjs.org");
+//        } else {
+//            XCTFail(@"Unknown header: %@, %@", key, armor.headers[key]);
+//        }
+//    }
+//}
+
+//- (void)testArmorText {
+//    ASCIIArmor *keyArmor = [ASCIIArmor armorFromText:self.publicKey];
+//    NSString *keyText = keyArmor.text;
+//    
+//    XCTAssertNotNil(keyText);
+//}
+
+- (void)testWriteArmor {
     
-    ASCIIArmor *armor = [ASCIIArmor armorFromText:self.message];
+    ASCIIArmor *keyArmor = [ASCIIArmor armorFromText:self.publicKey];
+    PacketList *packetList = [PacketList packetListFromData:keyArmor.content];
     
-    XCTAssertEqual(armor.armorHeaderType, ASCIIArmorHeaderTypeMessage);
+    ASCIIArmor *keyArmorOutput = [ASCIIArmor armorFromPacketList:packetList type:ASCIIArmorTypePublicKey];
     
-    for (NSString *key in armor.headers) {
-        if ([key isEqualToString:@"Version"]) {
-            XCTAssertEqualObjects(armor.headers[key], @"OpenPGP.js v0.11.1");
-        } else if ([key isEqualToString:@"Comment"]) {
-            XCTAssertEqualObjects(armor.headers[key], @"http://openpgpjs.org");
-        } else {
-            XCTFail(@"Unknown header: %@, %@", key, armor.headers[key]);
-        }
-    }
+    NSString *asciiArmorText = keyArmorOutput.text;
+    ASCIIArmor *textArmor = [ASCIIArmor armorFromText:asciiArmorText];
+    
+    NSLog(@"Armor:\n%@", asciiArmorText);
+    
+    PacketList *outList = [PacketList packetListFromData:textArmor.content];
+    
+    XCTAssertEqual(packetList.packets.count, outList.packets.count);
 }
 
 //- (void)testReadMessage {
@@ -63,28 +87,44 @@
 //    PacketList *packetList = [PacketList packetListFromData:armor.content];
 //    XCTAssertNotNil(packetList, @"Failed to create packet list.");
 //}
-
+//
 //- (void)testReadPublicKey {
 //    ASCIIArmor *armor = [ASCIIArmor armorFromText:self.publicKey];
 //    
 //    PacketList *packetList = [PacketList packetListFromData:armor.content];
 //    XCTAssertNotNil(packetList, @"Failed to create packet list.");
 //}
-
+//
 //- (void)testReadSecretKey {
 //    ASCIIArmor *armor = [ASCIIArmor armorFromText:self.privateKey];
 //    
 //    PacketList *packetList = [PacketList packetListFromData:armor.content];
 //    XCTAssertNotNil(packetList, @"Failed to create packet list.");
 //}
-
-- (void)testHumanPractice {
-    [OpenPGP decryptAndVerifyMessage:self.message privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *decryptedMessage, NSArray *verifiedUserIds) {
-        NSLog(@"Successfully decrypted message: %@", decryptedMessage);
-    } errorBlock:^(NSError *error) {
-        XCTFail(@"Decrypt and verify failed: %@", error);
-    }];
-}
+//
+//- (void)testGenerateKey {
+//    NSDictionary *options = @{
+//                              
+//                              };
+//    [OpenPGP generateKeypairWithOptions:options completionBlock:^(NSString *publicKey, NSString *privateKey) {
+//        
+//    } errorBlock:^(NSError *error) {
+//        XCTFail(@"Generate keys failed: %@", error);
+//    }];
+//}
+//
+//- (void)testHumanPractice {
+//    [OpenPGP decryptAndVerifyMessage:self.message privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *decryptedMessage, NSArray *verifiedUserIds) {
+//        NSLog(@"Successfully decrypted message: %@", decryptedMessage);
+//        
+//        if ([decryptedMessage isEqualToString:@"D"]) {
+//            
+//        }
+//        
+//    } errorBlock:^(NSError *error) {
+//        XCTFail(@"Decrypt and verify failed: %@", error);
+//    }];
+//}
 
 
 @end

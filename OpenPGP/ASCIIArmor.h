@@ -9,14 +9,16 @@
 #import <Foundation/Foundation.h>
 #import "PacketList.h"
 
-typedef NS_ENUM(NSUInteger, ASCIIArmorHeaderType) {
-    ASCIIArmorHeaderTypeUnknown,
-    ASCIIArmorHeaderTypeMessage,
-    ASCIIArmorHeaderTypePublicKey,
-    ASCIIArmorHeaderTypePrivateKey,
-    ASCIIArmorHeaderTypeMessageXofY,
-    ASCIIArmorHeaderTypeMessageX,
-    ASCIIArmorHeaderTypeSignature
+@class PublicKey, SecretKey;
+
+typedef NS_ENUM(NSUInteger, ASCIIArmorType) {
+    ASCIIArmorTypeUnknown,
+    ASCIIArmorTypeMessage,
+    ASCIIArmorTypePublicKey,
+    ASCIIArmorTypePrivateKey,
+    ASCIIArmorTypeMessageXofY,
+    ASCIIArmorTypeMessageX,
+    ASCIIArmorTypeSignature
 };
 
 #pragma mark - ASCIIArmor interface
@@ -26,7 +28,7 @@ typedef NS_ENUM(NSUInteger, ASCIIArmorHeaderType) {
 #pragma mark Properties
 
 /// Configurable properties:
-@property (nonatomic, readonly) ASCIIArmorHeaderType armorHeaderType;
+@property (nonatomic, readonly) ASCIIArmorType type;
 @property (nonatomic, readonly) NSDictionary *headers;
 @property (nonatomic, readonly) NSData *content;
 
@@ -35,7 +37,7 @@ typedef NS_ENUM(NSUInteger, ASCIIArmorHeaderType) {
 
 #pragma mark Constructors
 
-+ (ASCIIArmor *)armorFromPacketList:(PacketList *)packetList;
++ (ASCIIArmor *)armorFromPacketList:(PacketList *)packetList type:(ASCIIArmorType)type;
 + (ASCIIArmor *)armorFromText:(NSString *)text;
 
 @end

@@ -14,7 +14,7 @@
 - (instancetype)initWithDataFormat:(DataFormat)dataFormat
                           filename:(NSString *)filename
                               date:(NSUInteger)date
-                              data:(NSData *)data;
+                       literalData:(NSData *)data;
 
 @end
 
@@ -35,22 +35,22 @@
     currentIndex += 4;
     
     NSRange dataRange = NSMakeRange(currentIndex, body.length - currentIndex);
-    NSData *data = [body subdataWithRange:dataRange];
+    NSData *literalData = [body subdataWithRange:dataRange];
     
-    return [[self alloc] initWithDataFormat:dataFormat filename:filename date:date data:data];
+    return [[self alloc] initWithDataFormat:dataFormat filename:filename date:date literalData:literalData];
 }
 
 - (instancetype)initWithDataFormat:(DataFormat)dataFormat
                           filename:(NSString *)filename
                               date:(NSUInteger)date
-                              data:(NSData *)data {
+                       literalData:(NSData *)literalData {
     self = [super init];
     
     if (self != nil) {
         _dataFormat = dataFormat;
         _filename = filename;
         _date = date;
-        _data = data;
+        _literalData = literalData;
     }
     
     return self;

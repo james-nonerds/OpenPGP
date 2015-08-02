@@ -69,4 +69,14 @@
     return self;
 }
 
+- (NSData *)data {
+    NSMutableData *data = [NSMutableData data];
+    
+    for (Packet *packet in self.packets) {
+        [data appendData:packet.data];
+    }
+
+    return [NSData dataWithData:data];
+}
+
 @end
