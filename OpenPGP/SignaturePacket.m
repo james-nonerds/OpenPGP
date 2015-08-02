@@ -317,16 +317,12 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
 }
 
 - (void)readSubpackets:(NSData *)subpackets {
-    NSLog(@"Reading subpackets.");
-    
     const Byte *bytes = subpackets.bytes;
     NSUInteger currentIndex = 0;
     
     while (currentIndex < subpackets.length) {
         NSUInteger packetLength = [SignaturePacket readPacketLength:bytes index:&currentIndex];
         SignatureSubpacketType type = bytes[currentIndex++];
-        
-        NSLog(@"Length: %lu, type: %lu.", packetLength, type);
         
         const Byte *packetBytes = bytes + currentIndex;
         

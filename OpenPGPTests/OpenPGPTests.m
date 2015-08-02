@@ -66,15 +66,13 @@
 
 - (void)testWriteArmor {
     
-    ASCIIArmor *keyArmor = [ASCIIArmor armorFromText:self.publicKey];
+    ASCIIArmor *keyArmor = [ASCIIArmor armorFromText:self.privateKey];
     PacketList *packetList = [PacketList packetListFromData:keyArmor.content];
     
-    ASCIIArmor *keyArmorOutput = [ASCIIArmor armorFromPacketList:packetList type:ASCIIArmorTypePublicKey];
+    ASCIIArmor *keyArmorOutput = [ASCIIArmor armorFromPacketList:packetList type:ASCIIArmorTypePrivateKey];
     
     NSString *asciiArmorText = keyArmorOutput.text;
     ASCIIArmor *textArmor = [ASCIIArmor armorFromText:asciiArmorText];
-    
-    NSLog(@"Armor:\n%@", asciiArmorText);
     
     PacketList *outList = [PacketList packetListFromData:textArmor.content];
     
@@ -102,29 +100,35 @@
 //    XCTAssertNotNil(packetList, @"Failed to create packet list.");
 //}
 //
-//- (void)testGenerateKey {
-//    NSDictionary *options = @{
-//                              
-//                              };
-//    [OpenPGP generateKeypairWithOptions:options completionBlock:^(NSString *publicKey, NSString *privateKey) {
-//        
-//    } errorBlock:^(NSError *error) {
-//        XCTFail(@"Generate keys failed: %@", error);
-//    }];
-//}
-//
-//- (void)testHumanPractice {
-//    [OpenPGP decryptAndVerifyMessage:self.message privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *decryptedMessage, NSArray *verifiedUserIds) {
-//        NSLog(@"Successfully decrypted message: %@", decryptedMessage);
-//        
-//        if ([decryptedMessage isEqualToString:@"D"]) {
-//            
-//        }
-//        
-//    } errorBlock:^(NSError *error) {
-//        XCTFail(@"Decrypt and verify failed: %@", error);
-//    }];
-//}
+- (void)testGenerateKey {
+    NSDictionary *options = @{
+                              
+                              };
+    [OpenPGP generateKeypairWithOptions:options completionBlock:^(NSString *publicKey, NSString *privateKey) {
+        
+        XCTAssertNotNil(publicKey);
+        XCTAssertNotNil(privateKey);
+        
+        NSLog(@"Generated publicKey:\n%@", publicKey);
+        NSLog(@"Generated privateKey:\n%@", privateKey);
+        
+    } errorBlock:^(NSError *error) {
+        XCTFail(@"Generate keys failed: %@", error);
+    }];
+}
+
+- (void)testHumanPractice {
+    [OpenPGP decryptAndVerifyMessage:self.message privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *decryptedMessage, NSArray *verifiedUserIds) {
+        NSLog(@"Successfully decrypted message: %@", decryptedMessage);
+        
+        if ([decryptedMessage isEqualToString:@"D"]) {
+            
+        }
+        
+    } errorBlock:^(NSError *error) {
+        XCTFail(@"Decrypt and verify failed: %@", error);
+    }];
+}
 
 
 @end

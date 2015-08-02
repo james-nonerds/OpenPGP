@@ -133,8 +133,6 @@
     
     [data appendData:body];
     
-    NSLog(@"Packet type: %lu, body: %@", self.packetType, body.description);
-    
     return [NSData dataWithData:data];
 }
 

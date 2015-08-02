@@ -170,15 +170,32 @@
 }
 
 + (void)writeData:(NSMutableData *)data withSecretKey:(SecretKey *)secretKey {
+    NSMutableData *keyData = [NSMutableData data];
+    
     Byte header[1];
     header[0] = 0;
     
-    [data appendBytes:header length:1];
+    [keyData appendBytes:header length:1];
     
-    [data appendData:secretKey.d.data];
-    [data appendData:secretKey.p.data];
-    [data appendData:secretKey.q.data];
-    [data appendData:secretKey.u.data];
+    [keyData appendData:secretKey.d.data];
+    [keyData appendData:secretKey.p.data];
+    [keyData appendData:secretKey.q.data];
+    [keyData appendData:secretKey.u.data];
+    
+    NSUInteger sum = 0;
+    const Byte *bytes = keyData.bytes;
+    
+    for (NSUInteger i = 0; i < keyData.length; ++i) {
+        sum += bytes[i];
+        sum %= 65536;
+    }
+    
+    Byte checksum[2];
+    checksum[0] = (sum >> 8) & 0xFF;
+    checksum[1] = sum & 0xff;
+    
+    [keyData appendBytes:checksum length:2];
+    [data appendData:keyData];
 }
 
 @end
