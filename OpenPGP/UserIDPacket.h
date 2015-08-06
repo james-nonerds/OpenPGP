@@ -12,4 +12,6 @@
 
 @property (nonatomic, readonly) NSString *userId;
 
++ (UserIDPacket *)packetWithUserId:(NSString *)userId;
+
 @end

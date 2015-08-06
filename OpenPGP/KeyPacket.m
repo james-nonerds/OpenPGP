@@ -18,9 +18,6 @@
 - (instancetype)initWithPublicKey:(PublicKey *)publicKey;
 - (instancetype)initWithSecretKey:(SecretKey *)secretKey;
 
-- (instancetype)initWithPublicKey:(PublicKey *)publicKey
-                        secretKey:(SecretKey *)secretKey;
-
 @end
 
 @implementation KeyPacket
@@ -120,16 +117,30 @@
 }
 
 - (instancetype)initWithPublicKey:(PublicKey *)publicKey {
-    return [self initWithPublicKey:publicKey secretKey:nil];
+    return [self initWithPublicKey:publicKey secretKey:nil type:PacketTypePublicKey];
 }
 
 - (instancetype)initWithSecretKey:(SecretKey *)secretKey {
-    return [self initWithPublicKey:nil secretKey:secretKey];
+    return [self initWithPublicKey:nil secretKey:secretKey type:PacketTypeSecretKey];
 }
 
 - (instancetype)initWithPublicKey:(PublicKey *)publicKey
-                        secretKey:(SecretKey *)secretKey {
-    self = [super init];
+                        secretKey:(SecretKey *)secretKey
+                             type:(PacketType)packetType {
+    switch (packetType) {
+        case PacketTypePublicKey:
+        case PacketTypeSecretKey:
+        case PacketTypePublicSubkey:
+        case PacketTypeSecretSubkey:
+            break;
+        
+        default:
+            @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                           reason:@"Can't creating Key material packet with the provided PacketType."
+                                         userInfo:@{@"packetType": @(packetType)}];
+    }
+    
+    self = [super initWithType:packetType];
     
     if (self != nil) {
         _publicKey = publicKey;

@@ -43,7 +43,7 @@
 
 
 - (instancetype)initWithEncryptedData:(NSData *)encryptedData {
-    self = [super init];
+    self = [super initWithType:PacketTypeSEIPData];
     
     if (self != nil) {
         _encryptedData = encryptedData;

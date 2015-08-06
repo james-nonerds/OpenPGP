@@ -115,6 +115,16 @@
     }
 }
 
+- (instancetype)initWithType:(PacketType)type {
+    self = [super init];
+    
+    if (self != nil) {
+        _packetType = type;
+    }
+    
+    return self;
+}
+
 - (NSData *)body {
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                    reason:[NSString stringWithFormat:@"You must override this method in a subclass."]

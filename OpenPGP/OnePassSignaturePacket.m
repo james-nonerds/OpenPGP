@@ -57,7 +57,7 @@
 }
 
 - (instancetype)initWithSignatureType:(SignatureType)signatureType keyId:(NSString *)keyId isNested:(BOOL)isNested {
-    self = [super init];
+    self = [super initWithType:PacketTypeOnePassSig];
     
     if (self != nil) {
         _signatureType = signatureType;

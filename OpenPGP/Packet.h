@@ -49,10 +49,12 @@ typedef NS_ENUM(NSUInteger, PacketType) {
 @property (nonatomic, readonly) NSData *data;
 
 + (Packet *)packetWithType:(PacketType)type body:(NSData *)body;
+- (instancetype)initWithType:(PacketType)type;
 
 /// Abstract method: must be overriden:
 + (Packet *)packetWithBody:(NSData *)body;
 
 @end
+
 
 

@@ -151,7 +151,7 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
                                             creationTime:creationTime
                                                    keyId:keyId
                                          signedHashValue:signedHashValue
-                                              encryptedM:encryptedM];
+                                                    data:encryptedM.data];
         }
             
         case 4: {
@@ -211,7 +211,7 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
                                         hashedSubpackets:hashedSubpackets
                                       unhashedSubpackets:unhashedSubpackets
                                          signedHashValue:signedHashValue
-                                              encryptedM:encryptedM];
+                                                    data:encryptedM.data];
         }
             
         default: {
@@ -222,6 +222,106 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
     }
     
     return nil;
+}
+
++ (SignaturePacket *)packetWithSignature:(Signature *)signature {
+    
+    NSMutableData *hashData = [NSMutableData data];
+    Byte header[6];
+    
+    header[0] = 4;
+    header[1] = signature.type;
+    header[2] = PublicKeyAlgorithmRSAEncryptSign;
+    header[3] = HashAlgorithmSHA256;
+    
+    NSData *hashedSubpackets = [self hashedSubpacketDataForSignature:signature];
+    [Utility writeNumber:hashedSubpackets.length bytes:header + 4 length:2];
+    
+    [hashData appendBytes:header length:6];
+    [hashData appendData:hashedSubpackets];
+    
+    Byte unhashedHeader[2] = {0, 0};
+    [hashData appendBytes:unhashedHeader length:2];
+    
+    NSData *hashedData = [Crypto hashData:hashData];
+    const Byte *hashedBytes = hashedData.bytes;
+    
+    NSUInteger signedHashValue = (hashedBytes[0] << 8) | hashedBytes[1];
+    
+    // TODO: PKCS Encode the signature data.
+    
+    return [[self alloc] initV4WithSignatureType:signature.type
+                              publicKeyAlgorithm:PublicKeyAlgorithmRSAEncryptSign
+                                   hashAlgorithm:HashAlgorithmSHA256
+                                        hashData:hashData
+                                hashedSubpackets:hashedSubpackets
+                              unhashedSubpackets:[NSData data]
+                                 signedHashValue:signedHashValue
+                                            data:signature.data];
+    
+}
+
++ (NSData *)hashedSubpacketDataForSignature:(Signature *)signature {
+    NSMutableData *data = [NSMutableData data];
+    
+    // Creation time subpacket:
+    Byte creationTimeSubpacket[6];
+    
+    creationTimeSubpacket[0] = 5;
+    creationTimeSubpacket[1] = SignatureSubpacketCreationTime;
+    
+    NSUInteger creationTime = [[NSDate date] timeIntervalSince1970];
+    [Utility writeNumber:creationTime bytes:creationTimeSubpacket + 2 length:4];
+    
+    [data appendBytes:creationTimeSubpacket length:6];
+    
+    // Symmetric algorithms subpacket:
+    Byte preferredSymmetricAlgorithmsSubpacket[3];
+    
+    preferredSymmetricAlgorithmsSubpacket[0] = 2;
+    preferredSymmetricAlgorithmsSubpacket[1] = SignatureSubpacketPreferredSymmetricAlgorithms;
+    preferredSymmetricAlgorithmsSubpacket[2] = SymmetricAlgorithmAES256;
+    
+    [data appendBytes:preferredSymmetricAlgorithmsSubpacket length:3];
+    
+    // Hash algorithms subpacket:
+    Byte preferredHashAlgorithmsSubpacket[3];
+    
+    preferredHashAlgorithmsSubpacket[0] = 2;
+    preferredHashAlgorithmsSubpacket[1] = SignatureSubpacketPreferredHashAlgorithms;
+    preferredHashAlgorithmsSubpacket[2] = HashAlgorithmSHA256;
+    
+    [data appendBytes:preferredHashAlgorithmsSubpacket length:3];
+    
+    // Compression algorithms subpacket:
+    Byte preferredCompressionAlgorithmsSubpacket[3];
+    
+    preferredCompressionAlgorithmsSubpacket[0] = 2;
+    preferredCompressionAlgorithmsSubpacket[1] = SignatureSubpacketPreferredCompressionAlgorithms;
+    preferredCompressionAlgorithmsSubpacket[2] = CompressionAlgorithmZLIB;
+    
+    [data appendBytes:preferredCompressionAlgorithmsSubpacket length:3];
+    
+    // Key Flags:
+    Byte keyFlagsSubpacket[3];
+    
+    keyFlagsSubpacket[0] = 2;
+    keyFlagsSubpacket[1] = SignatureSubpacketKeyFlags;
+    keyFlagsSubpacket[2] = 0x01 | 0x02 | 0x04 | 0x08 | 0x20;
+    
+    [data appendBytes:keyFlagsSubpacket length:3];
+    
+    // Features:
+    Byte features[3];
+    
+    features[0] = 2;
+    features[1] = SignatureSubpacketFeatures;
+    features[2] = 0x01;
+    
+    
+    [data appendBytes:features length:3];
+    
+    return [NSData dataWithData:data];
 }
 
 + (NSUInteger)readPacketLength:(const Byte *)bytes index:(NSUInteger *)index {
@@ -255,14 +355,14 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
                            creationTime:(NSUInteger)creationTime
                                   keyId:(NSString *)keyId
                         signedHashValue:(NSUInteger)signedHashValue
-                             encryptedM:(MPI *)encryptedM {
+                                   data:(NSData *)data {
     
     self = [self initWithVersionNumber:3
                          signatureType:signatureType
                     publicKeyAlgorithm:publicKeyAlgorithm
                          hashAlgorithm:hashAlgorithm
                        signedHashValue:signedHashValue
-                            encryptedM:encryptedM];
+                                  data:data];
     
     if (self != nil) {
         _keyId = keyId;
@@ -279,14 +379,14 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
                        hashedSubpackets:(NSData *)hashedSubpackets
                      unhashedSubpackets:(NSData *)unhashedSubpackets
                         signedHashValue:(NSUInteger)signedHashValue
-                             encryptedM:(MPI *)encryptedM {
+                                   data:(NSData *)data {
     
     self = [self initWithVersionNumber:4
                          signatureType:signatureType
                     publicKeyAlgorithm:publicKeyAlgorithm
                          hashAlgorithm:hashAlgorithm
                        signedHashValue:signedHashValue
-                            encryptedM:encryptedM];
+                                  data:data];
     
     if (self != nil) {
         [self readSubpackets:hashedSubpackets];
@@ -301,8 +401,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
                    publicKeyAlgorithm:(PublicKeyAlgorithm)publicKeyAlgorithm
                         hashAlgorithm:(HashAlgorithm)hashAlgorithm
                       signedHashValue:(NSUInteger)signedHashValue
-                           encryptedM:(MPI *)encryptedM {
-    self = [super init];
+                                 data:data {
+    self = [super initWithType:PacketTypeSignature];
     
     if (self != nil) {
         _versionNumber = versionNumber;
@@ -310,7 +410,7 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
         _publicKeyAlgorithm = publicKeyAlgorithm;
         _hashAlgorithm = hashAlgorithm;
         _signedHashValue = signedHashValue;
-        _encryptedM = encryptedM;
+        _signatureData = data;
     }
     
     return self;
@@ -422,10 +522,6 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
     }
 }
 
-- (Signature *)signature {
-    return nil;
-}
-
 - (NSData *)body {
     NSMutableData *data = [NSMutableData data];
     
@@ -455,7 +551,7 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
     secondHeader[3] = self.signedHashValue & 0xFF;
     
     [data appendBytes:secondHeader length:4];
-    [data appendData:self.encryptedM.data];
+    [data appendData:self.signatureData];
     
     return [NSData dataWithData:data];
 }
@@ -469,7 +565,9 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
         [self writeSymmetricAlgorithms:data];
     }
     
-    [self writeKeyID:data];
+    if (self.keyId) {
+        [self writeKeyID:data];        
+    }
     
     if (self.preferredHashAlgorithms) {
         [self writeHashAlgorithms:data];

@@ -44,7 +44,7 @@
                           filename:(NSString *)filename
                               date:(NSUInteger)date
                        literalData:(NSData *)literalData {
-    self = [super init];
+    self = [super initWithType:PacketTypeLiteralData];
     
     if (self != nil) {
         _dataFormat = dataFormat;

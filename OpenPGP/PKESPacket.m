@@ -75,7 +75,7 @@
 - (instancetype)initWithKeyId:(NSString *)keyId
                    encryptedM:(MPI *)encryptedM {
     
-    self = [super init];
+    self = [super initWithType:PacketTypePKESKey];
     
     if (self != nil) {
         _encryptedM = encryptedM;

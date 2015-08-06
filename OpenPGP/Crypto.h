@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonCrypto.h>
 
-@class MPI, Keypair, SecretKey;
+@class MPI, Keypair, PublicKey, SecretKey;
 
 typedef NS_ENUM(NSUInteger, CompressionAlgorithm) {
     CompressionAlgorithmUncompressed = 0,
@@ -50,11 +50,22 @@ typedef NS_ENUM(NSUInteger, SymmetricAlgorithm) {
 
 @interface Crypto : NSObject
 
+// Hash:
++ (NSData *)hashData:(NSData *)data;
+
+// RSA decrypt/encrypt:
 + (NSData *)decryptData:(NSData *)data withSecretKey:(SecretKey *)key;
-+ (NSData *)decryptMessage:(MPI *)message withSecretKey:(SecretKey *)key;
++ (NSData *)encryptData:(NSData *)data withPublicKey:(PublicKey *)key;
 
+// RSA sign/verify:
++ (NSData *)signData:(NSData *)data withSecretKey:(SecretKey *)key;
++ (BOOL)verifyData:(NSData *)messageData withSignatureData:(NSData *)signatureData withPublicKey:(PublicKey *)key;
+
+// AES decrypt/encrypt:
 + (NSData *)decryptData:(NSData *)data withSymmetricKey:(const Byte *)symmetricKey;
++ (NSData *)encryptData:(NSData *)data withSymmetricKey:(const Byte *)symmetricKey;
 
+// Generate keypair:
 + (Keypair *)generateKeypairWithBits:(int)bits;
 
 @end

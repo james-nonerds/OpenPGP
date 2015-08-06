@@ -23,8 +23,12 @@
     return [[self alloc] initWithUserID:userId];
 }
 
++ (UserIDPacket *)packetWithUserId:(NSString *)userId {
+    return [[self alloc] initWithUserID:userId];
+}
+
 - (instancetype)initWithUserID:(NSString *)userId {
-    self = [super init];
+    self = [super initWithType:PacketTypeUserID];
     
     if (self != nil) {
         _userId = userId;

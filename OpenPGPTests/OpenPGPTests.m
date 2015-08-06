@@ -72,6 +72,9 @@
     ASCIIArmor *keyArmorOutput = [ASCIIArmor armorFromPacketList:packetList type:ASCIIArmorTypePrivateKey];
     
     NSString *asciiArmorText = keyArmorOutput.text;
+    
+    NSLog(@"Wrote armor:\n%@", asciiArmorText);
+    
     ASCIIArmor *textArmor = [ASCIIArmor armorFromText:asciiArmorText];
     
     PacketList *outList = [PacketList packetListFromData:textArmor.content];
@@ -117,18 +120,18 @@
     }];
 }
 
-- (void)testHumanPractice {
-    [OpenPGP decryptAndVerifyMessage:self.message privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *decryptedMessage, NSArray *verifiedUserIds) {
-        NSLog(@"Successfully decrypted message: %@", decryptedMessage);
-        
-        if ([decryptedMessage isEqualToString:@"D"]) {
-            
-        }
-        
-    } errorBlock:^(NSError *error) {
-        XCTFail(@"Decrypt and verify failed: %@", error);
-    }];
-}
+//- (void)testHumanPractice {
+//    [OpenPGP decryptAndVerifyMessage:self.message privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *decryptedMessage, NSArray *verifiedUserIds) {
+//        NSLog(@"Successfully decrypted message: %@", decryptedMessage);
+//        
+//        if ([decryptedMessage isEqualToString:@"D"]) {
+//            
+//        }
+//        
+//    } errorBlock:^(NSError *error) {
+//        XCTFail(@"Decrypt and verify failed: %@", error);
+//    }];
+//}
 
 
 @end

@@ -17,6 +17,7 @@
 #import "Keypair.h"
 #import "LiteralDataPacket.h"
 #import "OnePassSignaturePacket.h"
+#import "PacketReader.h"
 #import "SEIPDataPacket.h"
 #import "SignaturePacket.h"
 #import "UserIDPacket.h"
@@ -95,10 +96,16 @@
                         errorBlock:(void(^)(NSError *error))errorBlock {
     
     NSNumber *bits = options[@"bits"] ?: @(1024);
+    NSString *userId = options[@"userId"] ?: @"James Knight <james@jknight.co>";
+    
     Keypair *keypair = [Crypto generateKeypairWithBits:bits.intValue];
     
-    PacketList *publicKeyPacketList = [self packetListForPublicKey:keypair.publicKey];
-    PacketList *secretKeyPacketList = [self packetListForSecretKey:keypair.secretKey];
+    PacketList *publicKeyPacketList = [self exportPublicKey:keypair.publicKey
+                                                     userId:userId
+                                               signatureKey:keypair.secretKey];
+    
+    PacketList *secretKeyPacketList = [self exportSecretKey:keypair.secretKey
+                                                     userId:userId];
     
     ASCIIArmor *publicKeyArmor = [ASCIIArmor armorFromPacketList:publicKeyPacketList type:ASCIIArmorTypePublicKey];
     ASCIIArmor *secretKeyArmor = [ASCIIArmor armorFromPacketList:secretKeyPacketList type:ASCIIArmorTypePrivateKey];
@@ -109,16 +116,27 @@
     completionBlock(publicKeyString, secretKeyString);
 }
 
+
 #pragma mark - Private
 
-+ (PacketList *)packetListForPublicKey:(PublicKey *)publicKey {
++ (PacketList *)exportPublicKey:(PublicKey *)publicKey userId:(NSString *)userId signatureKey:(SecretKey *)signatureKey {
     KeyPacket *publicKeyPacket = [KeyPacket packetWithPublicKey:publicKey];
-    return [PacketList packetListWithPackets:@[publicKeyPacket]];
+    UserIDPacket *userIdPacket = [UserIDPacket packetWithUserId:userId];
+    
+    Signature *signature = [Signature signatureForKeyPacket:publicKeyPacket userIdPacket:userIdPacket signatureKey:signatureKey];
+    SignaturePacket *signaturePacket = [SignaturePacket packetWithSignature:signature];
+    
+    return [PacketList packetListWithPackets:@[publicKeyPacket, userIdPacket, signaturePacket]];
 }
 
-+ (PacketList *)packetListForSecretKey:(SecretKey *)secretKey {
++ (PacketList *)exportSecretKey:(SecretKey *)secretKey userId:(NSString *)userId {
     KeyPacket *secretKeyPacket = [KeyPacket packetWithSecretKey:secretKey];
-    return [PacketList packetListWithPackets:@[secretKeyPacket]];
+    UserIDPacket *userIdPacket = [UserIDPacket packetWithUserId:userId];
+    
+    Signature *signature = [Signature signatureForKeyPacket:secretKeyPacket userIdPacket:userIdPacket signatureKey:secretKey];
+    SignaturePacket *signaturePacket = [SignaturePacket packetWithSignature:signature];
+    
+    return [PacketList packetListWithPackets:@[secretKeyPacket, userIdPacket, signaturePacket]];
 }
 
 + (void)readPublicKeyMessages:(NSArray *)publicKeyMessages intoKeyring:(Keyring *)keyring {
@@ -286,7 +304,8 @@
         return nil;
     }
     
-    NSData *decryptedM = [Crypto decryptMessage:keyPacket.encryptedM withSecretKey:decryptionKey];
+    NSData *encryptedMData = keyPacket.encryptedM.data;
+    NSData *decryptedM = [Crypto decryptData:encryptedMData withSecretKey:decryptionKey];
     
     const Byte *bytes = decryptedM.bytes;
     NSUInteger currentIndex = 0;

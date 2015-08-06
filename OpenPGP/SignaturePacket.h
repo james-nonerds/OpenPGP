@@ -19,7 +19,7 @@
 @property (nonatomic, readonly) PublicKeyAlgorithm publicKeyAlgorithm;
 @property (nonatomic, readonly) HashAlgorithm hashAlgorithm;
 @property (nonatomic, readonly) NSUInteger signedHashValue;
-@property (nonatomic, readonly) MPI *encryptedM;
+@property (nonatomic, readonly) NSData *signatureData;
 
 /// Type dependent properties:
 @property (nonatomic, readonly) NSUInteger creationTime;
@@ -35,6 +35,6 @@
 
 @property (nonatomic, readonly) NSString *userId;
 
-@property (nonatomic, readonly) Signature *signature;
++ (SignaturePacket *)packetWithSignature:(Signature *)signature;
 
 @end

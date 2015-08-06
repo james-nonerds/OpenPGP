@@ -49,7 +49,7 @@
     self = [super init];
     
     if (self != nil) {
-        _bn = bn;
+        _bn = BN_dup(bn);
         _length = length;
     }
     
