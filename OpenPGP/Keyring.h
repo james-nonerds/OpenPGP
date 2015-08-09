@@ -11,6 +11,9 @@
 
 @interface Keyring : NSObject
 
+@property (nonatomic, readonly) NSArray *publicKeys;
+@property (nonatomic, readonly) NSArray *secretKeys;
+
 + (Keyring *)keyring;
 
 - (void)addPublicKey:(PublicKey *)publicKey forUserId:(NSString *)userId;

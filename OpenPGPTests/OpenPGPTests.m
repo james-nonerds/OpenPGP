@@ -118,6 +118,14 @@
 //    }];
 //}
 
+- (void)testSignAndEncrypt {
+    [OpenPGP signAndEncryptMessage:@"Hello!" privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *encryptedMessage) {
+        
+    } errorBlock:^(NSError *error) {
+        XCTFail(@"Decrypt and verify failed: %@", error);
+    }];
+}
+
 - (void)testHumanPractice {
     [OpenPGP decryptAndVerifyMessage:self.message privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *decryptedMessage, NSArray *verifiedUserIds) {
         NSLog(@"Successfully decrypted message: %@", decryptedMessage);

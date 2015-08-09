@@ -9,6 +9,7 @@
 #import "Crypto.h"
 #import "Signature.h"
 #import "KeyPacket.h"
+#import "LiteralDataPacket.h"
 #import "SignaturePacket.h"
 #import "UserIDPacket.h"
 #import "Utility.h"
@@ -44,14 +45,21 @@
     NSData *signatureData = [Crypto signData:hashData withSecretKey:signatureKey];
     
     NSString *keyId = nil;
+
+    return [[self alloc] initWithType:SignatureTypeUserIDCertificationGeneric
+                                 data:signatureData
+                                keyID:signatureKey.publicKey.keyID];
+}
+
++ (Signature *)signatureForLiteralDataPacket:(LiteralDataPacket *)literalDataPacket
+                                signatureKey:(SecretKey *)signatureKey {
     
-    if (keyPacket.publicKey) {
-        keyId = keyPacket.publicKey.keyID;
-    } else {
-        keyId = keyPacket.secretKey.publicKey.keyID;
-    }
+    NSData *hashData = [Crypto hashData:literalDataPacket.literalData];
+    NSData *signatureData = [Crypto signData:hashData withSecretKey:signatureKey];
     
-    return [[self alloc] initWithType:SignatureTypeUserIDCertificationGeneric data:signatureData keyID:keyPacket.publicKey.keyID];
+    SignatureType signatureType = literalDataPacket.dataFormat == DataFormatBinary ? SignatureTypeBinary : SignatureTypeCanonicalText;
+    
+    return [[Signature alloc] initWithType:signatureType data:signatureData keyID:signatureKey.publicKey.keyID];
 }
 
 + (Signature *)signatureForSignaturePacket:(SignaturePacket *)signaturePacket {

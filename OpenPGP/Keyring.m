@@ -46,6 +46,14 @@
     return self;
 }
 
+- (NSArray *)publicKeys {
+    return [[_publicKeysByKeyId allValues] arrayByAddingObjectsFromArray:[_publicSubkeysByKeyId allValues]];
+}
+
+- (NSArray *)secretKeys {
+    return [[_secretKeysByKeyId allValues] arrayByAddingObjectsFromArray:[_secretSubkeysByKeyId allValues]];
+}
+
 - (void)addPublicKey:(PublicKey *)publicKey forUserId:(NSString *)userId {
     if (_publicKeysByUserId[userId] == nil) {
         _publicKeysByUserId[userId] = [NSMutableArray array];

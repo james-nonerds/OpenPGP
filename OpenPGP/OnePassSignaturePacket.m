@@ -11,7 +11,11 @@
 
 @interface OnePassSignaturePacket ()
 
-- (instancetype)initWithSignatureType:(SignatureType)signatureType keyId:(NSString *)keyId isNested:(BOOL)isNested;
+- (instancetype)initWithSignatureType:(SignatureType)signatureType
+                                keyId:(NSString *)keyId
+                        hashAlgorithn:(HashAlgorithm)hashAlgorithm
+                   publicKeyAlgorithm:(PublicKeyAlgorithm)publicKeyAlgorithm
+                             isNested:(BOOL)isNested;
 
 @end
 
@@ -53,19 +57,55 @@
     
     BOOL isNested = !(bytes[currentIndex]);
     
-    return [[self alloc] initWithSignatureType:signatureType keyId:keyId isNested:isNested];
+    return [[self alloc] initWithSignatureType:signatureType
+                                         keyId:keyId
+                                 hashAlgorithn:hashAlgorithm
+                            publicKeyAlgorithm:publicKeyAlgorithm
+                                      isNested:isNested];
 }
 
-- (instancetype)initWithSignatureType:(SignatureType)signatureType keyId:(NSString *)keyId isNested:(BOOL)isNested {
++ (OnePassSignaturePacket *)packetWithSignature:(Signature *)signature {
+    return [[self alloc] initWithSignatureType:signature.type
+                                         keyId:signature.keyID
+                                 hashAlgorithn:HashAlgorithmSHA256
+                            publicKeyAlgorithm:PublicKeyAlgorithmRSAEncryptSign
+                                      isNested:NO];
+}
+
+- (instancetype)initWithSignatureType:(SignatureType)signatureType
+                                keyId:(NSString *)keyId
+                        hashAlgorithn:(HashAlgorithm)hashAlgorithm
+                   publicKeyAlgorithm:(PublicKeyAlgorithm)publicKeyAlgorithm
+                             isNested:(BOOL)isNested {
+    
     self = [super initWithType:PacketTypeOnePassSig];
     
     if (self != nil) {
         _signatureType = signatureType;
         _keyId = keyId;
+        
+        _hashAlgorithm = hashAlgorithm;
+        _publicKeyAlgorithm = publicKeyAlgorithm;
+        
         _isNested = isNested;
     }
     
     return self;
+}
+
+- (NSData *)body {
+    Byte body[13];
+    
+    body[0] = 0x03;
+    body[1] = self.signatureType;
+    body[2] = self.hashAlgorithm;
+    body[3] = self.publicKeyAlgorithm;
+    
+    [Utility writeKeyID:self.keyId toBytes:body + 4];
+    
+    body[12] = self.isNested;
+    
+    return [NSData dataWithBytes:body length:13];
 }
 
 @end

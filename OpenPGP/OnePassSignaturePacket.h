@@ -13,6 +13,12 @@
 
 @property (nonatomic, readonly) SignatureType signatureType;
 @property (nonatomic, readonly) NSString *keyId;
+
+@property (nonatomic, readonly) HashAlgorithm hashAlgorithm;
+@property (nonatomic, readonly) PublicKeyAlgorithm publicKeyAlgorithm;
+
 @property (nonatomic, readonly) BOOL isNested;
+
++ (OnePassSignaturePacket *)packetWithSignature:(Signature *)signature;
 
 @end

@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class PublicKey;
-@class KeyPacket, SignaturePacket, UserIDPacket;
+@class KeyPacket, LiteralDataPacket, SignaturePacket, UserIDPacket;
 
 typedef NS_ENUM(NSUInteger, SignatureType) {
     SignatureTypeBinary = 0x00,
@@ -44,6 +44,9 @@ typedef NS_ENUM(NSUInteger, SignatureType) {
 + (Signature *)signatureForKeyPacket:(KeyPacket *)keyPacket
                         userIdPacket:(UserIDPacket *)userIdPacket
                         signatureKey:(SecretKey *)signatureKey;
+
++ (Signature *)signatureForLiteralDataPacket:(LiteralDataPacket *)literalDataPacket
+                                signatureKey:(SecretKey *)signatureKey;
 
 + (Signature *)signatureForSignaturePacket:(SignaturePacket *)signaturePacket;
 

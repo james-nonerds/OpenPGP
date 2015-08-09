@@ -39,13 +39,14 @@
 
 @implementation OpenPGP
 
+
 + (void)decryptAndVerifyMessage:(NSString *)message
                      privateKey:(NSString *)privateKey
                      publicKeys:(NSArray *)publicKeys
                 completionBlock:(void (^)(NSString *decryptedMessage, NSArray *verifiedUserIds))completionBlock
                      errorBlock:(void (^)(NSError *))errorBlock {
-    if (message == nil || publicKeys == nil) {
-        errorBlock([OpenPGP errorWithCause:@"OpenPGP decryptAndVerifyMessage: Neither data nor publicKeys can be nil."]);
+    if (message == nil || publicKeys == nil || privateKey == nil) {
+        errorBlock([OpenPGP errorWithCause:@"OpenPGP decryptAndVerifyMessage: Neither message, publicKeys, nor privateKey can be nil."]);
         return;
     }
     
@@ -88,6 +89,42 @@
     PublicKey *publicKey = [keyring publicKeyForKeyId:signatureKeyId];
     
     completionBlock(decryptedMessage, @[publicKey.userId]);
+}
+
+
++ (void)signAndEncryptMessage:(NSString *)message
+                   privateKey:(NSString *)privateKey
+                   publicKeys:(NSArray *)publicKeys
+              completionBlock:(void (^)(NSString *encryptedMessage))completionBlock
+                   errorBlock:(void (^)(NSError *))errorBlock {
+    
+    if (message == nil || publicKeys == nil || privateKey == nil) {
+        errorBlock([OpenPGP errorWithCause:@"OpenPGP signAndEncryptMessage: Neither message, publicKeys, nor privateKey can be nil."]);
+        return;
+    }
+    
+    if (publicKeys.count < 1) {
+        errorBlock([OpenPGP errorWithCause:@"OpenPGP decryptAndVerifyMessage: Public keys is empty."]);
+        return;
+    }
+    
+    Keyring *keyring = [Keyring keyring];
+    
+    [self readSecretKeyMessage:privateKey intoKeyring:keyring];
+    [self readPublicKeyMessages:publicKeys intoKeyring:keyring];
+    
+    LiteralDataPacket *literalDataPacket = [LiteralDataPacket packetWithText:message];
+    Signature *signature = [Signature signatureForLiteralDataPacket:literalDataPacket signatureKey:keyring.secretKeys.firstObject];
+    
+    OnePassSignaturePacket *onePassPacket = [OnePassSignaturePacket packetWithSignature:signature];
+    SignaturePacket *signaturePacket = [SignaturePacket packetWithSignature:signature];
+    
+    PacketList *packetList = [PacketList packetListWithPackets:@[onePassPacket, literalDataPacket, signaturePacket]];
+    ASCIIArmor *armor = [ASCIIArmor armorFromPacketList:packetList type:ASCIIArmorTypeMessage];
+    
+    NSLog(@"Signed message:\n%@", armor.text);
+    
+    completionBlock(armor.text);
 }
 
 
@@ -294,7 +331,6 @@
     PKESKeyPacket *keyPacket = nil;
     
     for (PKESKeyPacket *packet in sessionKeyPackets) {
-        NSLog(@"Packet Key ID: %@", packet.keyId);
         decryptionKey = [keyring secretKeyForKeyId:packet.keyId];
         
         if (decryptionKey != nil) {
