@@ -54,7 +54,9 @@ typedef NS_ENUM(NSUInteger, SymmetricAlgorithm) {
 + (NSData *)hashData:(NSData *)data;
 
 // RSA decrypt/encrypt:
++ (NSData *)decryptMessage:(MPI *)message withSecretKey:(SecretKey *)key;
 + (NSData *)decryptData:(NSData *)data withSecretKey:(SecretKey *)key;
+
 + (NSData *)encryptData:(NSData *)data withPublicKey:(PublicKey *)key;
 
 // RSA sign/verify:

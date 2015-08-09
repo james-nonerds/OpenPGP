@@ -44,7 +44,22 @@
 #pragma mark RSA decrypt/encrypt
 
 + (NSData *)decryptData:(NSData *)data withSecretKey:(SecretKey *)key {
+    return [self decryptBytes:data.bytes length:data.length withSecretKey:key];
+}
+
++ (NSData *)decryptMessage:(MPI *)message withSecretKey:(SecretKey *)key {
     
+    NSUInteger length = BN_num_bytes(message.bn);
+    Byte mpibuf[length];
+    
+    memset(mpibuf, 0, length);
+    
+    BN_bn2bin(message.bn, mpibuf);
+    
+    return [self decryptBytes:mpibuf length:length withSecretKey:key];
+}
+
++ (NSData *)decryptBytes:(const Byte *)bytes length:(NSUInteger)length withSecretKey:(SecretKey *)key {
     RSAWrapper *rsaWrapper = [RSAWrapper rsaWithSecretKey:key];
     
     if (RSA_check_key(rsaWrapper.rsa) != 1) {
@@ -54,9 +69,9 @@
     
     Byte outbuf[8192];
     
-    NSInteger outLength = RSA_private_decrypt((int) data.length, data.bytes, outbuf, rsaWrapper.rsa, RSA_NO_PADDING);
+    NSUInteger outLength = RSA_private_decrypt((int) length, bytes, outbuf, rsaWrapper.rsa, 3);
     
-    return outLength > 0 ? [NSData dataWithBytes:outbuf length:outLength] : nil;
+    return [NSData dataWithBytes:outbuf length:outLength];
 }
 
 + (NSData *)encryptData:(NSData *)data withPublicKey:(PublicKey *)key {
@@ -78,6 +93,9 @@
 
 + (NSData *)signData:(NSData *)data withSecretKey:(SecretKey *)key {
     
+    NSUInteger keyLength = key.publicKey.n.length;
+    NSData *encodedData = [self emsaPKCSEncodeMessage:data algorithm:HashAlgorithmSHA256 length:keyLength];
+    
     RSAWrapper *rsaWrapper = [RSAWrapper rsaWithSecretKey:key];
     
     if (RSA_check_key(rsaWrapper.rsa) != 1) {
@@ -86,11 +104,10 @@
     }
     
     Byte outbuf[8192];
-    unsigned int outLen;
     
-    int res = RSA_sign(NID_sha256, data.bytes, (unsigned int) data.length, outbuf, &outLen, rsaWrapper.rsa);
+    int res = RSA_private_encrypt((int) encodedData.length, encodedData.bytes, outbuf, rsaWrapper.rsa, RSA_NO_PADDING);
     
-    return res && outLen > 0 ? [NSData dataWithBytes:outbuf length:outLen] : nil;
+    return res > 0 ? [NSData dataWithBytes:outbuf length:res] : nil;
 }
 
 + (BOOL)verifyData:(NSData *)messageData withSignatureData:(NSData *)signatureData withPublicKey:(PublicKey *)key {
@@ -219,6 +236,121 @@
     RSAWrapper *secretKeyWrapper = [RSAWrapper rsaWithSecretKey:secretKey];
     
     return [Keypair keypairWithPublicKey:publicKey secretKey:secretKey];
+}
+
+#pragma mark Private
+
++ (NSData *)emePKCSEncodeMessage:(NSData *)message keyLength:(NSUInteger)keyLength {
+    
+    if (message.length > keyLength - 11) {
+        return nil;
+    }
+    
+    NSUInteger paddingLength = keyLength - message.length - 3;
+    NSData *padding = [self emePKCSPaddingWithLength:paddingLength];
+    
+    NSUInteger encodedLength = message.length + paddingLength + 3;
+    NSMutableData *encodedMessage = [NSMutableData dataWithCapacity:encodedLength];
+    
+    Byte header[2] = {0x00, 0x02};
+    [encodedMessage appendBytes:header length:2];
+    [encodedMessage appendData:padding];
+    Byte zero = 0;
+    [encodedMessage appendBytes:&zero length:1];
+    [encodedMessage appendData:message];
+    
+    return [NSData dataWithData:encodedMessage];
+}
+
++ (NSData *)emePKCSDecodeMessage:(NSData *)message {
+    const Byte *bytes = message.bytes;
+    
+    Byte firstOctet = bytes[0];
+    Byte secondOctet = bytes[1];
+    
+    NSUInteger i = 2;
+    while (bytes[i] != 0 && i < message.length) {
+        i++;
+    }
+    
+    NSUInteger psLen = i -2;
+    NSUInteger separator = bytes[i++];
+    
+    if (firstOctet == 0x00
+        && secondOctet == 0x02
+        && psLen >= 8
+        && separator == 0x00) {
+        // PKCS encoded:
+        return [message subdataWithRange:NSMakeRange(i, message.length - i)];
+    } else {
+        return nil;
+    }
+}
+
++ (NSData *)emsaPKCSEncodeMessage:(NSData *)message algorithm:(HashAlgorithm)algorithm length:(NSUInteger)length {
+    if (algorithm != HashAlgorithmSHA256) {
+        return nil;
+    }
+    
+    Byte digest[SHA256_DIGEST_LENGTH];
+    SHA256(message.bytes, message.length, digest);
+    
+    const NSUInteger HASH_HEADER_LENGTH = 19;
+    Byte hashHeader[HASH_HEADER_LENGTH] = {
+        0x30, 0x31, 0x30, 0x0d,
+        0x06, 0x09, 0x60, 0x86,
+        0x48, 0x01, 0x65, 0x03,
+        0x04, 0x02, 0x01, 0x05,
+        0x00, 0x04, 0x20
+    };
+    
+    
+    NSUInteger tLength = HASH_HEADER_LENGTH + SHA256_DIGEST_LENGTH;
+    Byte T[tLength];
+    
+    memmove(T, hashHeader, HASH_HEADER_LENGTH);
+    memmove(T + HASH_HEADER_LENGTH, digest, SHA256_DIGEST_LENGTH);
+    
+    NSMutableData *encodedMessage = [NSMutableData dataWithCapacity:length];
+    
+    Byte header[2] = {0x00, 0x02};
+    [encodedMessage appendBytes:header length:2];
+    
+    NSUInteger paddingLength = length - tLength - 3;
+    NSData *padding = [self emsaPKCSPaddingWithLength:paddingLength];
+    [encodedMessage appendData:padding];
+    
+    Byte zero = 0;
+    [encodedMessage appendBytes:&zero length:1];
+    [encodedMessage appendBytes:T length:tLength];
+    
+    return [NSData dataWithData:encodedMessage];
+}
+
++ (NSData *)emePKCSPaddingWithLength:(NSUInteger)length {
+    NSMutableData *padding = [NSMutableData dataWithCapacity:length];
+    
+    NSUInteger paddingLength = 0;
+    while (paddingLength < length) {
+        Byte random = arc4random() & 0xFF;
+        if (random != 0) {
+            [padding appendBytes:(void *)&random length:1];
+            paddingLength++;
+        }
+    }
+    
+    return [NSData dataWithData:padding];
+}
+
++ (NSData *)emsaPKCSPaddingWithLength:(NSUInteger)length {
+    NSMutableData *padding = [NSMutableData dataWithCapacity:length];
+    
+    for (NSUInteger i = 0; i < length; ++i) {
+        Byte paddingValue = 0xFF;
+        [padding appendBytes:&paddingValue length:1];
+    }
+    
+    return [NSData dataWithData:padding];
 }
 
 @end

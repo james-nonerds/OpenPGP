@@ -16,6 +16,8 @@
 
 @property (nonatomic, readonly) NSData *data;
 
++ (MPI *)mpiFromData:(NSData *)data;
+
 + (MPI *)mpiFromBytes:(const Byte *)bytes byteCount:(NSUInteger)byteCount;
 + (MPI *)mpiFromBytes:(const Byte *)bytes;
 

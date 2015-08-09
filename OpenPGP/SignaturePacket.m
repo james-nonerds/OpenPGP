@@ -201,7 +201,6 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
             NSUInteger signedHashValue = [Utility readNumber:(bytes + hashValueIndex) length:2];
             
             // Get MPI:
-            
             MPI *encryptedM = [MPI mpiFromBytes:(bytes + hashValueIndex + 2)];
             
             return [[self alloc] initV4WithSignatureType:signatureType
@@ -211,7 +210,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
                                         hashedSubpackets:hashedSubpackets
                                       unhashedSubpackets:unhashedSubpackets
                                          signedHashValue:signedHashValue
-                                                    data:encryptedM.data];
+                                                    data:encryptedM.data
+                                                   keyID:nil];
         }
             
         default: {
@@ -247,7 +247,7 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
     const Byte *hashedBytes = hashedData.bytes;
     
     NSUInteger signedHashValue = (hashedBytes[0] << 8) | hashedBytes[1];
-    
+
     // TODO: PKCS Encode the signature data.
     
     return [[self alloc] initV4WithSignatureType:signature.type
@@ -257,7 +257,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
                                 hashedSubpackets:hashedSubpackets
                               unhashedSubpackets:[NSData data]
                                  signedHashValue:signedHashValue
-                                            data:signature.data];
+                                            data:signature.data
+                                           keyID:signature.keyID];
     
 }
 
@@ -362,7 +363,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
                     publicKeyAlgorithm:publicKeyAlgorithm
                          hashAlgorithm:hashAlgorithm
                        signedHashValue:signedHashValue
-                                  data:data];
+                                  data:data
+                                 keyID:nil];
     
     if (self != nil) {
         _keyId = keyId;
@@ -379,14 +381,16 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
                        hashedSubpackets:(NSData *)hashedSubpackets
                      unhashedSubpackets:(NSData *)unhashedSubpackets
                         signedHashValue:(NSUInteger)signedHashValue
-                                   data:(NSData *)data {
+                                   data:(NSData *)data
+                                  keyID:(NSString *)keyID {
     
     self = [self initWithVersionNumber:4
                          signatureType:signatureType
                     publicKeyAlgorithm:publicKeyAlgorithm
                          hashAlgorithm:hashAlgorithm
                        signedHashValue:signedHashValue
-                                  data:data];
+                                  data:data
+                                 keyID:keyID];
     
     if (self != nil) {
         [self readSubpackets:hashedSubpackets];
@@ -401,7 +405,8 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
                    publicKeyAlgorithm:(PublicKeyAlgorithm)publicKeyAlgorithm
                         hashAlgorithm:(HashAlgorithm)hashAlgorithm
                       signedHashValue:(NSUInteger)signedHashValue
-                                 data:data {
+                                 data:(NSData *)data
+                                keyID:(NSString *)keyID {
     self = [super initWithType:PacketTypeSignature];
     
     if (self != nil) {
@@ -411,6 +416,7 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
         _hashAlgorithm = hashAlgorithm;
         _signedHashValue = signedHashValue;
         _signatureData = data;
+        _keyId = keyID;
     }
     
     return self;
@@ -551,7 +557,9 @@ typedef NS_ENUM(NSUInteger, SignatureSubpacketType) {
     secondHeader[3] = self.signedHashValue & 0xFF;
     
     [data appendBytes:secondHeader length:4];
-    [data appendData:self.signatureData];
+    
+    MPI *mpi = [MPI mpiFromData:self.signatureData];
+    [data appendData:mpi.data];
     
     return [NSData dataWithData:data];
 }

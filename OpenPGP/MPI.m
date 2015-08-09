@@ -18,6 +18,10 @@
 
 @implementation MPI
 
++ (MPI *)mpiFromData:(NSData *)data {
+    return [self mpiFromBytes:data.bytes byteCount:data.length];
+}
+
 + (MPI *)mpiFromBytes:(const Byte *)bytes byteCount:(NSUInteger)length {
     
     Byte mpiBytes[length];

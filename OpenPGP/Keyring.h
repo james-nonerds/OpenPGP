@@ -16,10 +16,10 @@
 - (void)addPublicKey:(PublicKey *)publicKey forUserId:(NSString *)userId;
 - (void)addSecretKey:(SecretKey *)secretKey forUserId:(NSString *)userId;
 
-- (PublicKey *)publicKeyForUserId:(NSString *)userId;
+- (NSArray *)publicKeysForUserId:(NSString *)userId;
 - (PublicKey *)publicKeyForKeyId:(NSString *)keyId;
 
-- (SecretKey *)secretKeyForUserId:(NSString *)userId;
+- (NSArray *)secretKeysForUserId:(NSString *)userId;
 - (SecretKey *)secretKeyForKeyId:(NSString *)keyId;
 
 @end

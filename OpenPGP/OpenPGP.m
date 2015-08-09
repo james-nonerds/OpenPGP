@@ -161,12 +161,12 @@
     NSString *userId = nil;
     
     PublicKey *publicKey = nil;
-//    Signature *signature = nil;
+    Signature *signature = nil;
     
     PublicKey *publicSubkey = nil;
-//    Signature *subkeySignature = nil;
+    Signature *subkeySignature = nil;
     
-//    BOOL lastKeyWasSubkey = NO;
+    BOOL lastKeyWasSubkey = NO;
     
     for (Packet *packet in packetList.packets) {
         switch (packet.packetType) {
@@ -184,12 +184,12 @@
                 break;
                 
             case PacketTypeSignature:
-//                if (lastKeyWasSubkey) {
-//                    subkeySignature = ((SignaturePacket *) packet).signature;
-//                    lastKeyWasSubkey = NO;
-//                } else {
-//                    signature = ((SignaturePacket *) packet).signature;
-//                }
+                if (lastKeyWasSubkey) {
+                    signature = [Signature signatureForSignaturePacket:(SignaturePacket *)packet];
+                    lastKeyWasSubkey = NO;
+                } else {
+                    subkeySignature = [Signature signatureForSignaturePacket:(SignaturePacket *)packet];
+                }
                 break;
                 
             default:
@@ -207,6 +207,8 @@
     if (publicSubkey) {
         [publicKey addSubkey:publicSubkey];
         publicSubkey.userId = userId;
+        
+        [keyring addPublicKey:publicSubkey forUserId:userId];
     }
     
     // TODO: Verify key.
@@ -292,6 +294,7 @@
     PKESKeyPacket *keyPacket = nil;
     
     for (PKESKeyPacket *packet in sessionKeyPackets) {
+        NSLog(@"Packet Key ID: %@", packet.keyId);
         decryptionKey = [keyring secretKeyForKeyId:packet.keyId];
         
         if (decryptionKey != nil) {
@@ -304,8 +307,7 @@
         return nil;
     }
     
-    NSData *encryptedMData = keyPacket.encryptedM.data;
-    NSData *decryptedM = [Crypto decryptData:encryptedMData withSecretKey:decryptionKey];
+    NSData *decryptedM = [Crypto decryptMessage:keyPacket.encryptedM withSecretKey:decryptionKey];
     
     const Byte *bytes = decryptedM.bytes;
     NSUInteger currentIndex = 0;

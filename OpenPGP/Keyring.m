@@ -47,59 +47,82 @@
 }
 
 - (void)addPublicKey:(PublicKey *)publicKey forUserId:(NSString *)userId {
-    if (_publicKeysByUserId[userId]) {
-//        NSLog(@"Overwriting public key w/ user id: %@", userId);
+    if (_publicKeysByUserId[userId] == nil) {
+        _publicKeysByUserId[userId] = [NSMutableArray array];
     }
     
-    _publicKeysByUserId[userId] = publicKey;
+    [_publicKeysByUserId[userId] addObject:publicKey];
     _publicKeysByKeyId[publicKey.keyID] = publicKey;
     
+    for (PublicKey *subkey in publicKey.subkeys) {
+        [self addPublicSubkey:subkey forUserId:userId];
+    }
 }
 
-
 - (void)addSecretKey:(SecretKey *)secretKey forUserId:(NSString *)userId {
-    if (_secretKeysByUserId[userId]) {
-//        NSLog(@"Overwriting secret key w/ user id: %@", userId);
+    if (_secretKeysByUserId[userId] == nil) {
+        _secretKeysByUserId[userId] = [NSMutableArray array];
     }
     
-    [self addPublicKey:secretKey.publicKey forUserId:userId];
-    
-    _secretKeysByUserId[userId] = secretKey;
+    [_secretKeysByUserId[userId] addObject:secretKey];
     _secretKeysByKeyId[secretKey.publicKey.keyID] = secretKey;
     
     for (SecretKey *subkey in secretKey.subkeys) {
         [self addSecretSubkey:subkey forUserId:userId];
     }
+    
+    [self addPublicKey:secretKey.publicKey forUserId:userId];
 }
 
+
 - (void)addPublicSubkey:(PublicKey *)publicSubkey forUserId:(NSString *)userId {
-    if (_publicSubkeysByUserId[userId]) {
-        NSLog(@"Overwriting public subkey w/ user id: %@", userId);
+    if (_publicSubkeysByUserId[userId] == nil) {
+        _publicSubkeysByUserId[userId] = [NSMutableArray array];
     }
     
-    _publicSubkeysByUserId[userId] = publicSubkey;
+    [_publicSubkeysByUserId[userId] addObject:publicSubkey];
     _publicSubkeysByKeyId[publicSubkey.keyID] = publicSubkey;
 }
 
 - (void)addSecretSubkey:(SecretKey *)secretSubkey forUserId:(NSString *)userId {
-    if (_secretSubkeysByUserId[userId]) {
-        NSLog(@"Overwriting secret subkey w/ user id: %@", userId);
+    if (_secretSubkeysByUserId[userId] == nil) {
+        _secretSubkeysByUserId[userId] = [NSMutableArray array];
     }
     
-    _secretSubkeysByUserId[userId] = secretSubkey;
+    [_secretSubkeysByUserId[userId] addObject:secretSubkey];
     _secretSubkeysByKeyId[secretSubkey.publicKey.keyID] = secretSubkey;
 }
 
-- (PublicKey *)publicKeyForUserId:(NSString *)userId {
-    return _publicKeysByUserId[userId] ?: _publicSubkeysByUserId[userId];
+- (NSArray *)publicKeysForUserId:(NSString *)userId {
+    NSMutableArray *publicKeys = [NSMutableArray array];
+    
+    if (_publicKeysByUserId[userId]) {
+        [publicKeys addObjectsFromArray:_publicKeysByUserId[userId]];
+    }
+    
+    if (_publicSubkeysByUserId[userId]) {
+        [publicKeys addObjectsFromArray:_publicSubkeysByUserId[userId]];
+    }
+    
+    return [NSArray arrayWithArray:publicKeys];
 }
 
 - (PublicKey *)publicKeyForKeyId:(NSString *)keyId {
     return _publicKeysByKeyId[keyId] ?: _publicSubkeysByKeyId[keyId];
 }
 
-- (SecretKey *)secretKeyForUserId:(NSString *)userId {
-    return _secretKeysByUserId[userId] ?: _secretKeysByUserId[userId];
+- (NSArray *)secretKeysForUserId:(NSString *)userId {
+    NSMutableArray *secretKeys = [NSMutableArray array];
+    
+    if (_secretKeysByUserId[userId]) {
+        [secretKeys addObjectsFromArray:_secretKeysByUserId[userId]];
+    }
+    
+    if (_secretKeysByUserId[userId]) {
+        [secretKeys addObjectsFromArray:_secretKeysByUserId[userId]];
+    }
+    
+    return [NSArray arrayWithArray:secretKeys];
 }
 
 - (SecretKey *)secretKeyForKeyId:(NSString *)keyId {

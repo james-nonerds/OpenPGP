@@ -39,6 +39,7 @@ typedef NS_ENUM(NSUInteger, SignatureType) {
 
 @property (nonatomic, readonly) SignatureType type;
 @property (nonatomic, readonly) NSData *data;
+@property (nonatomic, readonly) NSString *keyID;
 
 + (Signature *)signatureForKeyPacket:(KeyPacket *)keyPacket
                         userIdPacket:(UserIDPacket *)userIdPacket

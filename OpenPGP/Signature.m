@@ -43,19 +43,28 @@
     NSData *hashData = [Crypto hashData:signatureBody];
     NSData *signatureData = [Crypto signData:hashData withSecretKey:signatureKey];
     
-    return [[self alloc] initWithType:SignatureTypeUserIDCertificationGeneric data:signatureData];
+    NSString *keyId = nil;
+    
+    if (keyPacket.publicKey) {
+        keyId = keyPacket.publicKey.keyID;
+    } else {
+        keyId = keyPacket.secretKey.publicKey.keyID;
+    }
+    
+    return [[self alloc] initWithType:SignatureTypeUserIDCertificationGeneric data:signatureData keyID:keyPacket.publicKey.keyID];
 }
 
 + (Signature *)signatureForSignaturePacket:(SignaturePacket *)signaturePacket {
-    return [[self alloc] initWithType:signaturePacket.signatureType data:signaturePacket.signatureData];
+    return [[self alloc] initWithType:signaturePacket.signatureType data:signaturePacket.signatureData keyID:signaturePacket.keyId];
 }
 
-- (instancetype)initWithType:(SignatureType)type data:(NSData *)data {
+- (instancetype)initWithType:(SignatureType)type data:(NSData *)data keyID:(NSString *)keyID {
     self = [super init];
     
     if (self != nil) {
         _type = type;
         _data = data;
+        _keyID = keyID;
     }
     
     return self;

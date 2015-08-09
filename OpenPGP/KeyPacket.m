@@ -52,22 +52,7 @@
     MPI *e = [MPI mpiFromBytes:bytes + currentIndex];
     currentIndex += e.length;
     
-    // Calculate fingerprint:
-    Byte fingerprintBytes[currentIndex + 3];
-    
-    fingerprintBytes[0] = 0x99;
-    fingerprintBytes[1] = (currentIndex >> 8) & 0xFF;
-    fingerprintBytes[2] = currentIndex & 0xFF;
-    
-    memcpy(fingerprintBytes + 3, bytes, currentIndex);
-    
-    Byte fingerprintOutput[SHA_DIGEST_LENGTH];
-    SHA1(fingerprintBytes, currentIndex + 3, fingerprintOutput);
-    
-    NSString *fingerprint = [Utility hexStringFromBytes:fingerprintOutput length:SHA_DIGEST_LENGTH];
-    
     PublicKey *publicKey = [PublicKey keyWithCreationTime:creationTime
-                                              fingerprint:fingerprint
                                                         n:n
                                                         e:e];
     
