@@ -23,12 +23,7 @@
 }
 
 + (MPI *)mpiFromBytes:(const Byte *)bytes byteCount:(NSUInteger)length {
-    
-    Byte mpiBytes[length];
-    memcpy(mpiBytes, bytes + 2, length);
-    
-    BIGNUM *bn = BN_bin2bn(mpiBytes, (int) length, NULL);
-    
+    BIGNUM *bn = BN_bin2bn(bytes, (int) length, NULL);
     return [[self alloc] initWithBIGNUM:bn length:length];
 }
 

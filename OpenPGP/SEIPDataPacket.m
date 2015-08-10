@@ -41,6 +41,9 @@
     return [[self alloc] initWithEncryptedData:[body subdataWithRange:NSMakeRange(1, body.length - 1)]];
 }
 
++ (SEIPDataPacket *)packetWithEncryptedData:(NSData *)encryptedData {
+    return [[self alloc] initWithEncryptedData:encryptedData];
+}
 
 - (instancetype)initWithEncryptedData:(NSData *)encryptedData {
     self = [super initWithType:PacketTypeSEIPData];
@@ -50,6 +53,12 @@
     }
     
     return self;
+}
+
+- (NSData *)body {
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                   reason:@"SEIPDataPacket not supported for data output."
+                                 userInfo:nil];
 }
 
 @end

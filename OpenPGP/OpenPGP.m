@@ -18,6 +18,7 @@
 #import "LiteralDataPacket.h"
 #import "OnePassSignaturePacket.h"
 #import "PacketReader.h"
+#import "SEDataPacket.h"
 #import "SEIPDataPacket.h"
 #import "SignaturePacket.h"
 #import "UserIDPacket.h"
@@ -119,21 +120,40 @@
     OnePassSignaturePacket *onePassPacket = [OnePassSignaturePacket packetWithSignature:signature];
     SignaturePacket *signaturePacket = [SignaturePacket packetWithSignature:signature];
     
-    PacketList *packetList = [PacketList packetListWithPackets:@[onePassPacket, literalDataPacket, signaturePacket]];
-    ASCIIArmor *armor = [ASCIIArmor armorFromPacketList:packetList type:ASCIIArmorTypeMessage];
+    PacketList *interiorPacketList = [PacketList packetListWithPackets:@[onePassPacket, literalDataPacket, signaturePacket]];
     
-    NSLog(@"Signed message:\n%@", armor.text);
+    NSData *sessionKey = [Crypto generateSessionKey];
     
-    completionBlock(armor.text);
+    NSData *encryptedData = [Crypto encryptData:interiorPacketList.data withSymmetricKey:sessionKey.bytes];
+
+    SEDataPacket *dataPacket = [SEDataPacket packetWithEncryptedData:encryptedData];
+    
+    NSMutableArray *packets = [NSMutableArray array];
+    
+    for (PublicKey *publicKey in keyring.publicKeys) {
+        PKESKeyPacket *keyPacket = [PKESKeyPacket packetWithPublicKey:publicKey sessionKey:sessionKey];
+        [packets addObject:keyPacket];
+    }
+    
+    [packets addObject:dataPacket];
+    
+    PacketList *messagePacketList = [PacketList packetListWithPackets:[NSArray arrayWithArray:packets]];
+    ASCIIArmor *messageArmor = [ASCIIArmor armorFromPacketList:messagePacketList type:ASCIIArmorTypeMessage];
+    
+    completionBlock(messageArmor.text);
 }
 
 
 + (void)generateKeypairWithOptions:(NSDictionary *)options
                    completionBlock:(void(^)(NSString *publicKey, NSString *privateKey))completionBlock
                         errorBlock:(void(^)(NSError *error))errorBlock {
+    if (!options[@"bits"] || !options[@"userId"]) {
+        errorBlock([OpenPGP errorWithCause:@"Options needs bits and userId"]);
+        return;
+    }
     
-    NSNumber *bits = options[@"bits"] ?: @(1024);
-    NSString *userId = options[@"userId"] ?: @"James Knight <james@jknight.co>";
+    NSNumber *bits = options[@"bits"];
+    NSString *userId = options[@"userId"];
     
     Keypair *keypair = [Crypto generateKeypairWithBits:bits.intValue];
     
@@ -306,7 +326,8 @@
 
 + (PacketList *)decryptPacketList:(PacketList *)packetList withKeyring:(Keyring *)keyring {
     NSMutableArray *sessionKeyPackets = [NSMutableArray array];
-    SEIPDataPacket *dataPacket = nil;
+    
+    id<EncryptedDataPacket> dataPacket = nil;
     
     for (Packet *packet in packetList.packets) {
         switch (packet.packetType) {
@@ -315,8 +336,9 @@
                 break;
             }
                 
+            case PacketTypeSEData:
             case PacketTypeSEIPData: {
-                dataPacket = (SEIPDataPacket *) packet;
+                dataPacket = (id<EncryptedDataPacket>) packet;
                 break;
             }
                 
@@ -343,18 +365,11 @@
         return nil;
     }
     
-    NSData *decryptedM = [Crypto decryptMessage:keyPacket.encryptedM withSecretKey:decryptionKey];
+    NSData *message = [Crypto decryptMessage:keyPacket.encryptedM withSecretKey:decryptionKey];
     
-    const Byte *bytes = decryptedM.bytes;
-    NSUInteger currentIndex = 0;
+    const Byte *bytes = message.bytes;
     
-    if (bytes[currentIndex++] != '\0' || bytes[currentIndex++] != '\x2') {
-        return nil;
-    }
-    
-    while (bytes[currentIndex++]!= '\0' && currentIndex < decryptedM.length);
-    
-    SymmetricAlgorithm symmetricAlgorithm = bytes[currentIndex++];
+    SymmetricAlgorithm symmetricAlgorithm = bytes[0];
     
     if (symmetricAlgorithm != SymmetricAlgorithmAES256) {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
@@ -367,7 +382,20 @@
     
     // TODO: CHECK CHECKSUM.
     
-    NSData *decryptedData = [Crypto decryptData:dataPacket.encryptedData withSymmetricKey:bytes + currentIndex];
+    const Byte *sessionKey = bytes + 1;
+    NSData *decryptedData = [Crypto decryptData:dataPacket.encryptedData withSymmetricKey:sessionKey];
+    
+    if (((Packet *)dataPacket).packetType == PacketTypeSEIPData) {
+        
+        NSUInteger sz_pre = kCCBlockSizeAES128 + 2;
+        NSUInteger sz_mdc_hash = 20; // SHA1
+        NSUInteger sz_mdc = 2 + sz_mdc_hash;
+        NSUInteger sz_plaintext =  decryptedData.length - sz_pre - sz_mdc;
+        
+        // TODO: Verify plaintext integrity.
+        
+        decryptedData = [decryptedData subdataWithRange:NSMakeRange(sz_pre, sz_plaintext)];
+    }
     
     return [PacketList packetListFromData:decryptedData];
 }

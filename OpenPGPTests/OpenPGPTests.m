@@ -56,6 +56,7 @@
 //        }
 //    }
 //}
+//
 //- (void)testArmorText {
 //    ASCIIArmor *keyArmor = [ASCIIArmor armorFromText:self.publicKey];
 //    NSString *keyText = keyArmor.text;
@@ -80,6 +81,7 @@
 //    
 //    XCTAssertEqual(packetList.packets.count, outList.packets.count);
 //}
+//
 //- (void)testReadMessage {
 //    ASCIIArmor *armor = [ASCIIArmor armorFromText:self.message];
 //    
@@ -102,9 +104,7 @@
 //}
 //
 //- (void)testGenerateKey {
-//    NSDictionary *options = @{
-//                              
-//                              };
+//    NSDictionary *options = @{@"bits": @(1024), @"userId": @"James Knight <james@jknight.co>"};
 //    [OpenPGP generateKeypairWithOptions:options completionBlock:^(NSString *publicKey, NSString *privateKey) {
 //        
 //        XCTAssertNotNil(publicKey);
@@ -117,25 +117,67 @@
 //        XCTFail(@"Generate keys failed: %@", error);
 //    }];
 //}
+//
+//- (void)testSignAndEncrypt {
+//    [OpenPGP signAndEncryptMessage:@"Hello!" privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *encryptedMessage) {
+//        
+//        XCTAssertNotNil(encryptedMessage);
+//        
+//        NSLog(@"Signed and encrypted message:\n%@", encryptedMessage);
+//        
+//    } errorBlock:^(NSError *error) {
+//        XCTFail(@"Decrypt and verify failed: %@", error);
+//    }];
+//}
+//
+//- (void)testHumanPractice {
+//    [OpenPGP decryptAndVerifyMessage:self.message privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *decryptedMessage, NSArray *verifiedUserIds) {
+//        NSLog(@"Successfully decrypted message: %@", decryptedMessage);
+//        
+//        if ([decryptedMessage isEqualToString:@"D"]) {
+//            
+//        }
+//        
+//    } errorBlock:^(NSError *error) {
+//        XCTFail(@"Decrypt and verify failed: %@", error);
+//    }];
+//}
 
-- (void)testSignAndEncrypt {
-    [OpenPGP signAndEncryptMessage:@"Hello!" privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *encryptedMessage) {
+- (void)testFull {
+    
+    __block NSString *_generatedPublicKey;
+    __block NSString *_generatedPrivateKey;
+    
+    [OpenPGP generateKeypairWithOptions:@{@"bits": @(1024), @"userId": @"James Knight <james@jknight.co>"} completionBlock:^(NSString *publicKey, NSString *privateKey) {
+        
+        _generatedPublicKey = publicKey;
+        _generatedPrivateKey = privateKey;
         
     } errorBlock:^(NSError *error) {
-        XCTFail(@"Decrypt and verify failed: %@", error);
+        XCTFail(@"Failed generating keys: %@", error);
     }];
-}
-
-- (void)testHumanPractice {
-    [OpenPGP decryptAndVerifyMessage:self.message privateKey:self.privateKey publicKeys:self.publicKeys completionBlock:^(NSString *decryptedMessage, NSArray *verifiedUserIds) {
-        NSLog(@"Successfully decrypted message: %@", decryptedMessage);
+    
+    __block NSString *_encryptedMessage;
+    
+    [OpenPGP signAndEncryptMessage:@"Hello!" privateKey:_generatedPrivateKey publicKeys:@[_generatedPublicKey] completionBlock:^(NSString *encryptedMessage) {
         
-        if ([decryptedMessage isEqualToString:@"D"]) {
-            
-        }
+        _encryptedMessage = encryptedMessage;
+        NSLog(@"Encrypted message:\n%@", encryptedMessage);
+        
+    } errorBlock:^(NSError *error ) {
+        XCTFail(@"Failed signing and encrypting message: %@", error);
+    }];
+    
+    __block NSString *_decryptedMessage;
+    __block NSArray *_verifiedUserIds;
+    
+    [OpenPGP decryptAndVerifyMessage:_encryptedMessage privateKey:_generatedPrivateKey publicKeys:@[_generatedPublicKey] completionBlock:^(NSString *decryptedMessage, NSArray *verifiedUserIds) {
+        
+        _decryptedMessage = decryptedMessage;
+        _verifiedUserIds = verifiedUserIds;
         
     } errorBlock:^(NSError *error) {
-        XCTFail(@"Decrypt and verify failed: %@", error);
+        XCTFail(@"Failed decrypting and verifying message: %@", error);
     }];
 }
 

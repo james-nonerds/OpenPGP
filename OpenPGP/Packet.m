@@ -35,6 +35,10 @@
             packet = [SEIPDataPacket packetWithBody:body];
             break;
             
+        case PacketTypeSEData:
+            packet = [SEDataPacket packetWithBody:body];
+            break;
+            
         case PacketTypeSignature:
             packet = [SignaturePacket packetWithBody:body];
             break;
@@ -59,9 +63,7 @@
             break;
             
         case PacketTypeSKESKey:
-        case PacketTypeCompressedData:
-        case PacketTypeSEData:
-        case PacketTypeMarker:
+        case PacketTypeCompressedData:        case PacketTypeMarker:
         case PacketTypeTrust:
         case PacketTypeUserAttribute:
         case PacketTypeModificationDetectionCode:

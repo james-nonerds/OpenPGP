@@ -8,6 +8,7 @@
 
 #import "PKESPacket.h"
 #import "MPI.h"
+#import "Key.h"
 #import "Utility.h"
 
 #pragma mark - PKESKeyPacket constants
@@ -72,6 +73,21 @@
     }
 }
 
++ (PKESKeyPacket *)packetWithPublicKey:(PublicKey *)publicKey sessionKey:(NSData *)sessionKey {
+    
+    NSMutableData *message = [NSMutableData dataWithCapacity:sessionKey.length + 1];
+    SymmetricAlgorithm algorithm = SymmetricAlgorithmAES256;
+    
+    [message appendBytes:&algorithm length:1];
+    [message appendData:sessionKey];
+    
+    NSData *encryptedData = [Crypto encryptData:message withPublicKey:publicKey];
+    
+    MPI *encryptedM = [MPI mpiFromData:encryptedData];
+    
+    return [[self alloc] initWithKeyId:publicKey.keyID encryptedM:encryptedM];
+}
+
 - (instancetype)initWithKeyId:(NSString *)keyId
                    encryptedM:(MPI *)encryptedM {
     
@@ -83,6 +99,21 @@
     }
     
     return self;
+}
+
+- (NSData *)body {
+    // TODO: Add PKCS encoding.
+    Byte header[10];
+    
+    header[0] = 0x03;
+    [Utility writeKeyID:self.keyId toBytes:header + 1];
+    header[9] = PublicKeyAlgorithmRSAEncryptSign;
+    
+    NSMutableData *body = [NSMutableData data];
+    [body appendBytes:header length:10];
+    [body appendData:self.encryptedM.data];
+    
+    return [NSData dataWithData:body];
 }
 
 @end

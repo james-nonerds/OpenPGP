@@ -64,8 +64,13 @@ typedef NS_ENUM(NSUInteger, SymmetricAlgorithm) {
 + (BOOL)verifyData:(NSData *)messageData withSignatureData:(NSData *)signatureData withPublicKey:(PublicKey *)key;
 
 // AES decrypt/encrypt:
++ (NSData *)generateSessionKey;
+
 + (NSData *)decryptData:(NSData *)data withSymmetricKey:(const Byte *)symmetricKey;
 + (NSData *)encryptData:(NSData *)data withSymmetricKey:(const Byte *)symmetricKey;
+
++ (NSData *)emePKCSEncodeMessage:(NSData *)message keyLength:(NSUInteger)keyLength;
++ (NSData *)emePKCSDecodeMessage:(NSData *)message;
 
 // Generate keypair:
 + (Keypair *)generateKeypairWithBits:(int)bits;

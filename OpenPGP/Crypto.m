@@ -69,7 +69,7 @@
     
     Byte outbuf[8192];
     
-    NSUInteger outLength = RSA_private_decrypt((int) length, bytes, outbuf, rsaWrapper.rsa, 3);
+    NSUInteger outLength = RSA_private_decrypt((int) length, bytes, outbuf, rsaWrapper.rsa, RSA_PKCS1_PADDING);
     
     return [NSData dataWithBytes:outbuf length:outLength];
 }
@@ -78,16 +78,12 @@
     
     RSAWrapper *rsaWrapper = [RSAWrapper rsaWithPublicKey:key];
     
-    if (RSA_check_key(rsaWrapper.rsa) != 1) {
-        NSLog(@"Error with key.");
-        return nil;
-    }
-    
     Byte outbuf[8192];
     
-    NSInteger outLength = RSA_public_encrypt((int) data.length, data.bytes, outbuf, rsaWrapper.rsa, RSA_NO_PADDING);
+    NSInteger outLength = RSA_public_encrypt((int) data.length, data.bytes, outbuf, rsaWrapper.rsa, RSA_PKCS1_PADDING);
     
-    return outLength > 0 ? [NSData dataWithBytes:outbuf length:outLength] : nil;}
+    return outLength > 0 ? [NSData dataWithBytes:outbuf length:outLength] : nil;
+}
 
 #pragma mark RSA sign/verify
 
@@ -118,6 +114,13 @@
 }
 
 #pragma mark AES decrypt/encrypt
+
++ (NSData *)generateSessionKey {
+    Byte sessionKey[kCCKeySizeAES256];
+    arc4random_buf(sessionKey, kCCKeySizeAES256);
+    
+    return [NSData dataWithBytes:sessionKey length:kCCKeySizeAES256];
+}
 
 + (NSData *)decryptData:(NSData *)data withSymmetricKey:(const Byte *)symmetricKey {
     NSUInteger length = data.length + kCCBlockSizeAES128;
@@ -152,16 +155,7 @@
         NSLog(@"Error with CCCryptor final: %i", err);
     }
     
-    NSUInteger sz_pre = kCCBlockSizeAES128 + 2;
-    NSUInteger sz_mdc_hash = 20; // SHA1
-    NSUInteger sz_mdc = 2 + sz_mdc_hash;
-    NSUInteger sz_plaintext =  num - sz_pre - sz_mdc;
-    
-    // TODO: Verify plaintext integrity.
-    
-    Byte *plaintext = outbuf + sz_pre;
-    
-    return [NSData dataWithBytes:plaintext length:sz_plaintext];
+    return [NSData dataWithBytes:outbuf length:num];
 }
 
 + (NSData *)encryptData:(NSData *)data withSymmetricKey:(const Byte *)symmetricKey {
@@ -231,9 +225,6 @@
     
     PublicKey *publicKey = [PublicKey keyWithCreationTime:timestamp n:n e:e];
     SecretKey *secretKey = [SecretKey keyWithPublicKey:publicKey d:d p:p q:q u:u];
-    
-    RSAWrapper *publicKeyWrapper = [RSAWrapper rsaWithPublicKey:publicKey];
-    RSAWrapper *secretKeyWrapper = [RSAWrapper rsaWithSecretKey:secretKey];
     
     return [Keypair keypairWithPublicKey:publicKey secretKey:secretKey];
 }

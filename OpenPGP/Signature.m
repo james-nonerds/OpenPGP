@@ -43,8 +43,6 @@
     
     NSData *hashData = [Crypto hashData:signatureBody];
     NSData *signatureData = [Crypto signData:hashData withSecretKey:signatureKey];
-    
-    NSString *keyId = nil;
 
     return [[self alloc] initWithType:SignatureTypeUserIDCertificationGeneric
                                  data:signatureData

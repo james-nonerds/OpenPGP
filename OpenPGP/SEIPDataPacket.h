@@ -7,12 +7,15 @@
 //
 
 #import "Packet.h"
+#import "SEDataPacket.h"
 
 #pragma mark - SEIPDataPacket interface
 
-@interface SEIPDataPacket : Packet
+@interface SEIPDataPacket : Packet <EncryptedDataPacket>
 
 @property (nonatomic, readonly) NSData *encryptedData;
+
++ (SEIPDataPacket *)packetWithEncryptedData:(NSData *)encryptedData;
 
 @end
 

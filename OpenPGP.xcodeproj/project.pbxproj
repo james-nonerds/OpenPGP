@@ -28,6 +28,8 @@
 		A71958461B3B51FB007116E1 /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A71958451B3B51FB007116E1 /* libbz2.dylib */; };
 		A71958491B3B5482007116E1 /* MPI.h in Headers */ = {isa = PBXBuildFile; fileRef = A71958471B3B5482007116E1 /* MPI.h */; };
 		A719584A1B3B5482007116E1 /* MPI.m in Sources */ = {isa = PBXBuildFile; fileRef = A71958481B3B5482007116E1 /* MPI.m */; };
+		A73B00711B78216800B602A1 /* SEDataPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = A73B006F1B78216800B602A1 /* SEDataPacket.h */; };
+		A73B00721B78216800B602A1 /* SEDataPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = A73B00701B78216800B602A1 /* SEDataPacket.m */; };
 		A76D015D1B3B907200103F89 /* Signature.h in Headers */ = {isa = PBXBuildFile; fileRef = A76D015B1B3B907200103F89 /* Signature.h */; };
 		A76D015E1B3B907200103F89 /* Signature.m in Sources */ = {isa = PBXBuildFile; fileRef = A76D015C1B3B907200103F89 /* Signature.m */; };
 		A76DD0421B3C531800C911C3 /* PKESPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = A76DD0401B3C531800C911C3 /* PKESPacket.h */; };
@@ -90,6 +92,8 @@
 		A71958451B3B51FB007116E1 /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = usr/lib/libbz2.dylib; sourceTree = SDKROOT; };
 		A71958471B3B5482007116E1 /* MPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPI.h; sourceTree = "<group>"; };
 		A71958481B3B5482007116E1 /* MPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPI.m; sourceTree = "<group>"; };
+		A73B006F1B78216800B602A1 /* SEDataPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SEDataPacket.h; sourceTree = "<group>"; };
+		A73B00701B78216800B602A1 /* SEDataPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SEDataPacket.m; sourceTree = "<group>"; };
 		A76D015B1B3B907200103F89 /* Signature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Signature.h; sourceTree = "<group>"; };
 		A76D015C1B3B907200103F89 /* Signature.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Signature.m; sourceTree = "<group>"; };
 		A76DD0401B3C531800C911C3 /* PKESPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKESPacket.h; sourceTree = "<group>"; };
@@ -181,6 +185,8 @@
 				A712FED51B3EF86500B15747 /* LiteralDataPacket.m */,
 				A712FED01B3EF69B00B15747 /* OnePassSignaturePacket.h */,
 				A712FED11B3EF69B00B15747 /* OnePassSignaturePacket.m */,
+				A73B006F1B78216800B602A1 /* SEDataPacket.h */,
+				A73B00701B78216800B602A1 /* SEDataPacket.m */,
 				A76DD0441B3C534800C911C3 /* SEIPDataPacket.h */,
 				A76DD0451B3C534800C911C3 /* SEIPDataPacket.m */,
 				A76DD0481B3C536900C911C3 /* SignaturePacket.h */,
@@ -326,6 +332,7 @@
 			files = (
 				A7A691DB1B3E0A5200B55BA9 /* UserIDPacket.h in Headers */,
 				A712FED61B3EF86500B15747 /* LiteralDataPacket.h in Headers */,
+				A73B00711B78216800B602A1 /* SEDataPacket.h in Headers */,
 				A712FED21B3EF69B00B15747 /* OnePassSignaturePacket.h in Headers */,
 				A76D015D1B3B907200103F89 /* Signature.h in Headers */,
 				A712FEDE1B3EFCAA00B15747 /* Keyring.h in Headers */,
@@ -453,6 +460,7 @@
 				A712FEEB1B3F001300B15747 /* OpenPGP.m in Sources */,
 				A719584A1B3B5482007116E1 /* MPI.m in Sources */,
 				A712FED71B3EF86500B15747 /* LiteralDataPacket.m in Sources */,
+				A73B00721B78216800B602A1 /* SEDataPacket.m in Sources */,
 				A770F8C71B3A444C00D8E826 /* PacketReader.m in Sources */,
 				A76DD0501B3C546000C911C3 /* Utility.m in Sources */,
 				A770F89D1B39E79500D8E826 /* PacketList.m in Sources */,

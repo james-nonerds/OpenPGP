@@ -15,4 +15,6 @@
 @property (nonatomic, readonly) NSString *keyId;
 @property (nonatomic, readonly) MPI *encryptedM;
 
++ (PKESKeyPacket *)packetWithPublicKey:(PublicKey *)publicKey sessionKey:(NSData *)sessionKey;
+
 @end

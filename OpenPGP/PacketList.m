@@ -45,7 +45,7 @@
         packetList = [self packetListWithPackets:[NSArray arrayWithArray:packets]];
     }
     @catch (NSException *exception) {
-        NSLog(@"Failed to read packet list: %@", packetList);
+        NSLog(@"Failed to read packet list: %@", exception);
     }
     
     return packetList;
